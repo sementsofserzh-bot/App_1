@@ -1,10 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace App_Logics
+﻿public class Athlete
 {
-    internal class Essence
-    {
-    }
+    public int Id { get; set; }
+
+    public string FullName { get; set; } = string.Empty;
+
+    public string Gender { get; set; } = string.Empty;
+
+    public int Age { get; set; }
+
+    public double Weight { get; set; }
+
+    public double Height { get; set; }
+
+    public int TrainerId { get; set; }
+}
+public class Trainer
+{
+    public int Id { get; set; }
+
+    public string FullName { get; set; } = string.Empty;
+
+    public string Gender { get; set; } = string.Empty;
+
+    public int Age { get; set; }
+
+    public double Weight { get; set; }
+
+    public double Height { get; set; }
+
+    public List<int> AthleteIds { get; set; } = new();
+    public int GymId { get; set; }
 }

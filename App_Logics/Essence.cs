@@ -29,5 +29,5 @@ public class Trainer
     public double Height { get; set; }
 
     public List<int> AthleteIds { get; set; } = new();
-    public int GymId { get; set; }
+    
 }

@@ -10,7 +10,6 @@ namespace App_Model
         {
             public List<T1> BD_Trainer { get; set; }
             public List<T2> BD_Athlete { get; set; }
-
             public void AddTrainer();
             public void AddAthlete();
 

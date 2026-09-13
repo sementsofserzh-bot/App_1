@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 
 namespace App_Model
@@ -18,27 +19,28 @@ namespace App_Model
             public List<Trainer> BD_Trainer { get; set; }
             public List<Athlete> BD_Athlete { get; set; }
 
-            public void AddTrainer();
-            public void AddAthlete();
+            public string AddTrainer(string FullName, string Gender, int Age, int Weight, int Height);
+           
+            public string AddAthlete(string FullName, string Gender, int Age, int Weight, int Height);
 
-            public void RemoveTrainer();
+            public bool RemoveTrainer(int id);
 
-            public void RemoveAthlete();
+            public bool RemoveAthlete(int id);
 
-            public void checkTrainer();
+            public Trainer? checkTrainer(int id);
 
-            public void checkAthlete();
+            public Athlete? checkAthlete(int id);
 
-            public void UpdateInfoTrainer();
+            public Trainer? UpdateInfoTrainer(int id, string FullName, string Gender, int Age, int Weight, int Height);
 
-            public void UpdateInfoAthlete();
+            public Athlete? UpdateInfoAthlete(int id, string FullName, string Gender, int Age, int Weight, int Height);
 
-            public void registration();
+            public bool registration(int iIdAthlete, int IdTrainer);
 
-            public void PersonalTraining();
+            public string PersonalTraining(string gender);
 
 
         }
     }
 }
-    
+

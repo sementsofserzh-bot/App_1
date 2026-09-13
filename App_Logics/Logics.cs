@@ -1,7 +1,6 @@
-﻿using Appp
-namespace App_Logics
+﻿namespace App_Logics
 {
-    public class Logics : ILogics
+    public class Logics
     {
         
     }

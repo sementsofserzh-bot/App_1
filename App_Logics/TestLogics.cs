@@ -8,8 +8,8 @@ namespace App_Model_TestLogics
         List<Trainer> BD_Trainer { get; set; }
         List<Athlete> BD_Athlete { get; set; }
 
-        string AddTrainer(string fullName, string gender, int age);
-        string AddAthlete(string fullName, string gender, int age);
+        string AddTrainer(string fullName, Gendre gendre, int age);
+        string AddAthlete(string fullName, Gendre gendre, int age);
 
         bool RemoveTrainer(int id);
         bool RemoveAthlete(int id);
@@ -17,10 +17,10 @@ namespace App_Model_TestLogics
         Trainer? CheckTrainer(int id);
         Athlete? CheckAthlete(int id);
 
-        Trainer? UpdateInfoTrainer(int id, string fullName, string gender, int age);
-        Athlete? UpdateInfoAthlete(int id, string fullName, string gender, int age);
+        Trainer? UpdateInfoTrainer(int id, string fullName, Gendre gendre, int age);
+        Athlete? UpdateInfoAthlete(int id, string fullName, Gendre gendre, int age);
 
         bool Registration(int idAthlete, int idTrainer);
-        string PersonalTraining(string gender);
+        string PersonalTraining(Gendre gendre);
     }
 }

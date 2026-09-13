@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
+using App_Model_Essence;
 
-namespace App_Model
+
+namespace App_Model_TestLogics
 {
     internal class TestLogics
     {

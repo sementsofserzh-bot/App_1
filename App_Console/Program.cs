@@ -1,1 +1,1 @@
-﻿Console.WriteLine("Прпорвопрвопвоп");
+﻿Console.WriteLine("");

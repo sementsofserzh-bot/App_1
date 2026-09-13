@@ -1,48 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Text;
+﻿using System.Collections.Generic;
 using App_Model_Essence;
-
 
 namespace App_Model_TestLogics
 {
-    internal class TestLogics
+    public interface ILogics
     {
-        public interface ILogics
-        {
-            public void Ilogics()
-            {
-                trainer = new Trainer();
-                athlete = new Athlete();
-            }
-            Trainer trainer { get; set; }
-            Athlete athlete { get; set; }
-            public List<Trainer> BD_Trainer { get; set; }
-            public List<Athlete> BD_Athlete { get; set; }
+        List<Trainer> BD_Trainer { get; set; }
+        List<Athlete> BD_Athlete { get; set; }
 
-            public string AddTrainer(string FullName, string Gender, int Age, int Weight, int Height);
+        string AddTrainer(string fullName, string gender, int age, double weight, double height);
+        string AddAthlete(string fullName, string gender, int age, double weight, double height);
 
-            public string AddAthlete(string FullName, string Gender, int Age, int Weight, int Height);
+        bool RemoveTrainer(int id);
+        bool RemoveAthlete(int id);
 
-            public bool RemoveTrainer(int id);
+        Trainer? CheckTrainer(int id);
+        Athlete? CheckAthlete(int id);
 
-            public bool RemoveAthlete(int id);
+        Trainer? UpdateInfoTrainer(int id, string fullName, string gender, int age, double weight, double height);
+        Athlete? UpdateInfoAthlete(int id, string fullName, string gender, int age, double weight, double height);
 
-            public Trainer? checkTrainer(int id);
-
-            public Athlete? checkAthlete(int id);
-
-            public Trainer? UpdateInfoTrainer(int id, string FullName, string Gender, int Age, int Weight, int Height);
-
-            public Athlete? UpdateInfoAthlete(int id, string FullName, string Gender, int Age, int Weight, int Height);
-
-            public bool registration(int iIdAthlete, int IdTrainer);
-
-            public string PersonalTraining(string gender);
-
-
-        }
+        bool Registration(int idAthlete, int idTrainer);
+        string PersonalTraining(string gender);
     }
 }
-

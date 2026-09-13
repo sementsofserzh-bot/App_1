@@ -10,10 +10,6 @@
 
         public int Age { get; set; }
 
-        public double Weight { get; set; }
-
-        public double Height { get; set; }
-
         public int TrainerId { get; set; }
     }
     public class Trainer
@@ -25,10 +21,6 @@
         public string Gender { get; set; } = string.Empty;
 
         public int Age { get; set; }
-
-        public double Weight { get; set; }
-
-        public double Height { get; set; }
 
         public List<int> AthleteIds { get; set; } = new();
 

@@ -48,7 +48,15 @@ namespace App_Model_Logics
 
         public bool Registration(int idAthlete, int idTrainer)
         {
-
+            //coming soon
+        }
+        string PersonalTraining(Gendre gendre, int height, int weight, int age)
+        {
+            //coming soon
+        }
+        public List<Trainer> RateTrainers()
+        {
+            return BD_Trainer.OrderByDescending();
         }
 
     }

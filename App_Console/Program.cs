@@ -25,7 +25,7 @@ namespace App_Console
                 Console.WriteLine("8. Обновить информацию о спортсмене");
                 Console.WriteLine("9. Регистрация спортсмена у тренера");
                 Console.WriteLine("10. Персональная тренировка по полу");
-                Console.WriteLine("0. Выходdewfrgethnhgmjh");
+                Console.WriteLine("0. Выход");
                 string choice = Console.ReadLine();
                 switch (choice)
                 {

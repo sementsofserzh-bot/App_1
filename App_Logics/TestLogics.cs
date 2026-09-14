@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using App_Model_Essence;
+﻿using App_Model_Essence;
 
 namespace App_Model_TestLogics
 {

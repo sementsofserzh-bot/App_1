@@ -1,7 +1,7 @@
-﻿using System;
-using System.Security.Cryptography.X509Certificates;
-using App_Model_Essence;
+﻿using App_Model_Essence;
 using App_Model_TestLogics;
+using System;
+using System.Security.Cryptography.X509Certificates;
 
 namespace App_Console
 {
@@ -88,10 +88,10 @@ namespace App_Console
                         Console.WriteLine("Введите ID атлета для проверки:");
                         idAthlete = int.Parse(Console.ReadLine());
                         Athlete? athlete = logic.CheckAthlete(idAthlete);
-                        if(athlete != null)
+                        if (athlete != null)
                         {
                             Console.WriteLine($"Атлет найден: {athlete.FullName}, {athlete.Gender}, {athlete.Age}");
-                            if(athlete.TrainerId != null)
+                            if (athlete.TrainerId != null)
                             {
                                 Console.WriteLine($"Прикреплен к тренеру: {logic.CheckTrainer(athlete.TrainerId).FullName}");
                             }
@@ -118,8 +118,8 @@ namespace App_Console
                             Console.WriteLine("Введите возраст:");
                             int age_check_trainer = int.Parse(Console.ReadLine());
                             Trainer New_Trainer = logic.UpdateInfoTrainer(idTrainer, FullName, gender_check_trainer, age_check_trainer);
-                            for(int i = 0; logic.Check_AthleteInTrainer(idTrainer).Count)
-                            Console.WriteLine($"Обновленные данные тренера: {New_Trainer.FullName}, {New_Trainer.Gender}, {New_Trainer.Age}");
+                            for (int i = 0; logic.Check_AthleteInTrainer(idTrainer).Count)
+                                Console.WriteLine($"Обновленные данные тренера: {New_Trainer.FullName}, {New_Trainer.Gender}, {New_Trainer.Age}");
 
                         }
                         else
@@ -145,4 +145,3 @@ namespace App_Console
     }
 }
 
-  

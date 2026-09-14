@@ -6,9 +6,7 @@
         public int Id { get; set; }
 
         public string FullName { get; set; } = string.Empty;
-        public int Weight { get; set; }
-        public int Height { get; set; }
-
+        
         public Gendre Gendre { get; set; }
         public int Age { get; set; }
 

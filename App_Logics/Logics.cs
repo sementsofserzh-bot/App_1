@@ -3,9 +3,65 @@ using System.Collections.Generic;
 using System.Linq;
 using App_Model_Essence;
 using App_Model_TestLogics;
-
 namespace App_Model_Logics
 {
+    
+    public class Logics : ILogics
+    {
+        public List<Trainer> BD_Trainer { get; set; } = new();
+        public List<Athlete> BD_Athlete { get; set; } = new();
+        int nextTrainer_ID = 0; 
+        int nextAthlete_ID = 0;
+        //Добавление
+        public Trainer AddTrainer(string fullname, Gendre gendre, TrainingType trainingType, int age, int workExperience)
+        {
+            if (string.IsNullOrWhiteSpace(fullname))
+                throw new ArgumentException("Имя не может быть пустым");
+            if (age < 0 || age > 120)
+                throw new ArgumentException("Некорректный возраст");
+            BD_Trainer.Add(new Trainer { Id = nextTrainer_ID++, FullName = fullname, Gendre = gendre, TrainingType = trainingType, Age = age, WorkExperience = workExperience });
+            return BD_Trainer[BD_Trainer.Count - 1];
+        }
+        public Athlete AddAthlete(string fullname, Gendre gendre, TrainingType trainingType, int age, int height, int weight)
+        {
+            if (string.IsNullOrWhiteSpace(fullname))
+                throw new ArgumentException("Имя не может быть пустым");
+            if (age < 0 || age > 120)
+                throw new ArgumentException("Некорректный возраст");
+            BD_Athlete.Add(new Athlete { Id = nextAthlete_ID++, FullName = fullname, Gendre = gendre, TrainingType = trainingType, Age = age, Height = height, Weight = weight });
+            return BD_Athlete[BD_Athlete.Count - 1];
+        }
+        //удаление
+        public bool RemoveTrainer(int id)
+        {
+            var trainer = BD_Trainer.FirstOrDefault(t => t.Id == id);
+            if (trainer == null) { return false; }
+            BD_Trainer.Remove(trainer);
+            return true;
+        }
+        public bool RemoveAthlete(int id)
+        {
+            var athlete = BD_Athlete.FirstOrDefault(a => a.Id == id);
+            if (athlete == null) { return false; }
+            BD_Athlete.Remove(athlete);
+            return true;
+        }
+        //Чтение
+        public Trainer? CheckTrainer(int id)
+        {
+            return BD_Trainer.FirstOrDefault(t => t.Id == id);
+        }
+        public Athlete? CheckAthlete(int id)
+        {
+            return BD_Athlete.FirstOrDefault(a => a.Id == id);
+        }
+        //обновление
+
+        
+
+
+
+    }
     //public class Logics : ILogics
     //{
     //    public List<Trainer> BD_Trainer { get; set; } = new();
@@ -39,7 +95,7 @@ namespace App_Model_Logics
     //    public Athlete? CheckAthlete(int id) => BD_Athlete.FirstOrDefault(a => a.Id == id);
 
     //    public Trainer? UpdateInfoTrainer(int id, string fullName, Gendre gendre, int age) 
-        
+
     //    =>    BD_Trainer[id - 1] = new Trainer { Age = age, Gendre = gendre, FullName = fullName  };
 
     //    public Athlete? UpdateInfoAthlete(int id, string fullName, Gendre gendre, int age)

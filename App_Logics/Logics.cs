@@ -17,8 +17,10 @@ namespace App_Model_Logics
         {
             if (string.IsNullOrWhiteSpace(fullname))
                 throw new ArgumentException("Имя не может быть пустым");
-            if (age < 0 || age > 120)
-                throw new ArgumentException("Некорректный возраст");
+            if (age < 18 || age > 120) 
+                throw new ArgumentException("Некорректный возраст"); //ДЛЯ СЕРЕГИ: ВО ВЬЮХЕ ВОЗРАСТ И ОПЫТ ПРОСИ УКАЗЫВАТЬ В ГОДАХ
+            if (workExperience < 0 || workExperience > age - 18)
+                throw new ArgumentException("Некорректный опыт работы");
             BD_Trainer.Add(new Trainer { Id = nextTrainer_ID++, FullName = fullname, Gendre = gendre, TrainingType = trainingType, Age = age, WorkExperience = workExperience });
             return BD_Trainer[BD_Trainer.Count - 1];
         }
@@ -26,8 +28,12 @@ namespace App_Model_Logics
         {
             if (string.IsNullOrWhiteSpace(fullname))
                 throw new ArgumentException("Имя не может быть пустым");
-            if (age < 0 || age > 120)
+            if (age < 14 || age > 120)
                 throw new ArgumentException("Некорректный возраст");
+            if (height <= 0 || height > 300) //ДЛЯ СЕРЕГИ: ВО ВЬЮХЕ РОСТ ПРОСИ УКАЗЫВАТЬ В СМ
+                throw new ArgumentException("Некорректный рост");
+            if (weight <= 0 || weight > 1000) //ДЛЯ СЕРЕГИ:ВО ВЬЮХЕ ВЕС ПРОСИ УКАЗЫВАТЬ В КГ
+                throw new ArgumentException("Некорректный вес");
             BD_Athlete.Add(new Athlete { Id = nextAthlete_ID++, FullName = fullname, Gendre = gendre, TrainingType = trainingType, Age = age, Height = height, Weight = weight });
             return BD_Athlete[BD_Athlete.Count - 1];
         }
@@ -56,8 +62,27 @@ namespace App_Model_Logics
             return BD_Athlete.FirstOrDefault(a => a.Id == id);
         }
         //обновление
+        public Trainer? UpdateInfoTrainer(int id, string fullname, Gendre gendre, TrainingType trainingType, int age, int workExperience, List<Athlete> deleteathlete, List<Athlete> addathlete)
+        {
+            var chosen_trainer = BD_Trainer.FirstOrDefault(a => a.Id == id);
+            if (chosen_trainer == null) { return null; }
+            chosen_trainer.FullName = fullname;
+            chosen_trainer.Gendre = gendre;
+            chosen_trainer.TrainingType = trainingType;
+            chosen_trainer.Age = age;
+            chosen_trainer.WorkExperience = workExperience;
+            if (deleteathlete.Count != 0)
+            {
+                foreach (var athlete in deleteathlete) 
+                {
+                    chosen_trainer.AthleteIds.Remove(athlete.Id);
+                    var athlete_In_DB = BD_Athlete.FirstOrDefault(x => x.Id == athlete.Id);
+                    if (athlete_In_DB != null) { athlete_In_DB. = 0; }
+                }
 
-        
+        }
+
+
 
 
 

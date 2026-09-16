@@ -14,7 +14,7 @@ namespace App_Model_TestLogics
         bool RemoveAthlete(int id); //удаление спортсмена из базы данных
 
         Trainer? CheckTrainer(int id); //просмотр данных об тренере
-        Athlete? CheckAthlete(int id); //просмотр данных об отлете
+        Athlete? CheckAthlete(int id); //просмотр данных об атлете
 
         Trainer? UpdateInfoTrainer(int id, string fullname, Gendre gendre, TrainingType trainingType, int age, int workExperience, List<Athlete> deleteathlete, List<Athlete> addathlete); // изменение данных тренера, в чтом числе изменение закрепленных за тренером спортсменов
         Athlete? UpdateInfoAthlete(int id, string fullname, Gendre gendre, int age, int height, int weight, TrainingType trainingType, Trainer trainer); // изменение данных спортсмена, в том числе закрепление за тренером
@@ -73,6 +73,7 @@ namespace App_Model_TestLogics
             {
                 return null;
             }
+
 
             public Athlete? UpdateInfoAthlete(int id, string fullname, Gendre gendre, int age, int height, int weight, TrainingType trainingType, Trainer trainer)
             {

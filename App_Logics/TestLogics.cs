@@ -10,8 +10,8 @@ namespace App_Model_TestLogics
         Trainer AddTrainer(string fullname, Gendre gendre, TrainingType trainingType, int age, int workExperience); //добавление тренера в базу данных
         Athlete AddAthlete(string fullname, Gendre gendre, TrainingType trainingType, int age, int height, int weight); //добавление спортсмена в базу данных
 
-        bool RemoveTrainer(int id); //удаление тренера из базы данных
-        bool RemoveAthlete(int id); //удаление спортсмена из базы данных
+        bool? RemoveTrainer(int id); //удаление тренера из базы данных
+        bool? RemoveAthlete(int id); //удаление спортсмена из базы данных
 
         Trainer? CheckTrainer(int id); //просмотр данных об тренере
         Athlete? CheckAthlete(int id); //просмотр данных об атлете
@@ -61,8 +61,8 @@ namespace App_Model_TestLogics
             }
 
             // --- Удаление ---
-            public bool RemoveTrainer(int id) => false;
-            public bool RemoveAthlete(int id) => false;
+            public bool? RemoveTrainer(int id) => false;
+            public bool? RemoveAthlete(int id) => false;
 
             // --- Просмотр ---
             public Trainer? CheckTrainer(int id) => null;

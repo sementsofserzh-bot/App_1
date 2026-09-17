@@ -16,8 +16,8 @@ namespace App_Model_TestLogics
         Trainer? CheckTrainer(int id); //просмотр данных об тренере
         Athlete? CheckAthlete(int id); //просмотр данных об атлете
 
-        Trainer? UpdateInfoTrainer(int id, string fullname, Gendre gendre, TrainingType trainingType, int age, int workExperience, List<Athlete> deleteathlete, List<Athlete> addathlete); // изменение данных тренера, в чтом числе изменение закрепленных за тренером спортсменов
-        Athlete? UpdateInfoAthlete(int id, string fullname, Gendre gendre, int age, int height, int weight, TrainingType trainingType, Trainer trainer); // изменение данных спортсмена, в том числе закрепление за тренером
+        Trainer? UpdateInfoTrainer(int id, string? fullname, Gendre? gendre, TrainingType? trainingType, int? age, int? workExperience, List<Athlete>? deleteathlete, List<Athlete>? addathlete); // изменение данных тренера, в чтом числе изменение закрепленных за тренером спортсменов
+        Athlete? UpdateInfoAthlete(int id, string? fullname, Gendre? gendre, int? age, int? height, int? weight, TrainingType? trainingType, Trainer? trainer); // изменение данных спортсмена, в том числе закрепление за тренером
 
         bool Registration(Trainer trainer, Athlete athlete); //закрепление спортсмена за тренером
         string PersonalTraining(Athlete athlete); //бизнес функция: подбор типа тренировки по параметрам спортсмена
@@ -26,65 +26,135 @@ namespace App_Model_TestLogics
 
         List<Trainer> RateTrainers(); // рейтинг тренеров по парметрам: возраст, опыт работы и колл закрепленных спортсменов за тренером
 
-        public class Logics : ILogics //заглушка для тестов, в которой реализованы все методы интерфейса ILogics
+        
+    }
+
+    public class Logics : ILogics
+    {
+        public List<Trainer> BD_Trainer { get; set; } = new();
+        public List<Athlete> BD_Athlete { get; set; } = new();
+
+        // =========================
+        // ДОБАВЛЕНИЕ
+        // =========================
+
+        public Trainer AddTrainer(
+            string fullname,
+            Gendre gendre,
+            TrainingType trainingType,
+            int age,
+            int workExperience)
         {
-            // Базы данных в памяти
-            public List<Trainer> BD_Trainer { get; set; } = new List<Trainer>();
-            public List<Athlete> BD_Athlete { get; set; } = new List<Athlete>();
+            throw new NotImplementedException();
+        }
 
-            // --- Добавление ---
-            public Trainer AddTrainer(string fullname, Gendre gendre, TrainingType trainingType, int age, int workExperience)
-            {
-                return new Trainer
-                {
-                    Id = -1,
-                    FullName = "ЗАГЛУШКА",
-                    Gendre = gendre,
-                    TrainingType = trainingType,
-                    Age = age,
-                    WorkExperience = workExperience
-                };
-            }
+        public Athlete AddAthlete(
+            string fullname,
+            Gendre gendre,
+            TrainingType trainingType,
+            int age,
+            int height,
+            int weight)
+        {
+            throw new NotImplementedException();
+        }
 
-            public Athlete AddAthlete(string fullname, Gendre gendre, TrainingType trainingType, int age, int height, int weight)
-            {
-                return new Athlete
-                {
-                    Id = -1,
-                    FullName = "ЗАГЛУШКА",
-                    Gendre = gendre,
-                    TrainingType = trainingType,
-                    Age = age,
-                    Height = height,
-                    Weight = weight
-                };
-            }
+        // =========================
+        // УДАЛЕНИЕ
+        // =========================
 
-            // --- Удаление ---
-            public bool? RemoveTrainer(int id) => false;
-            public bool? RemoveAthlete(int id) => false;
+        public bool? RemoveTrainer(int id)
+        {
+            throw new NotImplementedException();
+        }
 
-            // --- Просмотр ---
-            public Trainer? CheckTrainer(int id) => null;
-            public Athlete? CheckAthlete(int id) => null;
+        public bool? RemoveAthlete(int id)
+        {
+            throw new NotImplementedException();
+        }
 
-            // --- Редактирование ---
-            public Trainer? UpdateInfoTrainer(int id, string fullname, Gendre gendre, TrainingType trainingType, int age, int workExperience, List<Athlete> deleteathlete, List<Athlete> addathlete)
-            {
-                return null;
-            }
+        // =========================
+        // ПРОВЕРКА
+        // =========================
 
+        public Trainer? CheckTrainer(int id)
+        {
+            throw new NotImplementedException();
+        }
 
-            public Athlete? UpdateInfoAthlete(int id, string fullname, Gendre gendre, int age, int height, int weight, TrainingType trainingType, Trainer trainer)
-            {
-                return null;
-            }
+        public Athlete? CheckAthlete(int id)
+        {
+            throw new NotImplementedException();
+        }
 
-            // --- Бизнес-функции ---
-            public bool Registration(Trainer trainer, Athlete athlete) => false;
-            public string PersonalTraining(Athlete athlete) => string.Empty;
-            public List<Trainer> PersonalFilterTrainers(Athlete athlete) => new List<Trainer>();
-            public List<Trainer> RateTrainers() => new List<Trainer>();
+        // =========================
+        // ОБНОВЛЕНИЕ ТРЕНЕРА
+        // =========================
+
+        public Trainer? UpdateInfoTrainer(
+            int id,
+            string? fullname,
+            Gendre? gendre,
+            TrainingType? trainingType,
+            int? age,
+            int? workExperience,
+            List<Athlete>? deleteathlete,
+            List<Athlete>? addathlete)
+        {
+            throw new NotImplementedException();
+        }
+
+        // =========================
+        // ОБНОВЛЕНИЕ АТЛЕТА
+        // =========================
+
+        public Athlete? UpdateInfoAthlete(
+            int id,
+            string? fullname,
+            Gendre? gendre,
+            int? age,
+            int? height,
+            int? weight,
+            TrainingType? trainingType,
+            Trainer? trainer)
+        {
+            throw new NotImplementedException();
+        }
+
+        // =========================
+        // РЕГИСТРАЦИЯ
+        // =========================
+
+        public bool Registration(Trainer trainer, Athlete athlete)
+        {
+            throw new NotImplementedException();
+        }
+
+        // =========================
+        // ПЕРСОНАЛЬНАЯ ТРЕНИРОВКА
+        // =========================
+
+        public string PersonalTraining(Athlete athlete)
+        {
+            throw new NotImplementedException();
+        }
+
+        // =========================
+        // ФИЛЬТР ТРЕНЕРОВ
+        // =========================
+
+        public List<Trainer> PersonalFilterTrainers(Athlete athlete)
+        {
+            throw new NotImplementedException();
+        }
+
+        // =========================
+        // РЕЙТИНГ ТРЕНЕРОВ
+        // =========================
+
+        public List<Trainer> RateTrainers()
+        {
+            throw new NotImplementedException();
         }
     }
 }

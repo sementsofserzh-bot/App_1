@@ -34,7 +34,7 @@
 
         public int Age { get; set; }
         public int WorkExperience { get; set; }
-        public List<Athlete> AthleteIds { get; set; } = new();
+        public List<Athlete> Athlete { get; set; } = new();
 
     }
 }

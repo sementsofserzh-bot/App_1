@@ -1,3 +1,6 @@
+using System;
+using System.Linq;
+using System.Windows.Forms;
 using App_Model_Essence;
 using App_Model_TestLogics;
 
@@ -13,14 +16,19 @@ namespace App_WinForms
             this.logics = logics;
             FillEnums();
             RefreshCombos();
+            RefreshRating();
         }
 
         private void FillEnums()
         {
+            comboGender.Items.Clear();
+            comboTrainingType.Items.Clear();
+
             comboGender.Items.AddRange(Enum.GetValues<Gendre>().Cast<object>().ToArray());
             comboTrainingType.Items.AddRange(Enum.GetValues<TrainingType>().Cast<object>().ToArray());
-            comboGender.SelectedIndex = 0;
-            comboTrainingType.SelectedIndex = 0;
+
+            if (comboGender.Items.Count > 0) comboGender.SelectedIndex = 0;
+            if (comboTrainingType.Items.Count > 0) comboTrainingType.SelectedIndex = 0;
         }
 
         private void RefreshCombos()
@@ -57,7 +65,7 @@ namespace App_WinForms
                     trainer.Gendre,
                     trainer.Age,
                     trainer.WorkExperience,
-                    trainer.Athlete.Count,
+                    trainer.Athlete?.Count ?? 0,
                     trainer.TrainingType);
 
                 number++;
@@ -66,6 +74,12 @@ namespace App_WinForms
 
         private void buttonAddAthlete_Click(object sender, EventArgs e)
         {
+            if (string.IsNullOrWhiteSpace(textFullName.Text))
+            {
+                MessageBox.Show("Введите ФИО атлета.");
+                return;
+            }
+
             if (!int.TryParse(textAge.Text, out int age) ||
                 !int.TryParse(textHeight.Text, out int height) ||
                 !int.TryParse(textWeight.Text, out int weight))
@@ -84,6 +98,11 @@ namespace App_WinForms
 
             RefreshCombos();
             MessageBox.Show($"Атлет {athlete.FullName} успешно добавлен.");
+
+            textFullName.Clear();
+            textAge.Clear();
+            textHeight.Clear();
+            textWeight.Clear();
         }
 
         private void buttonRegistration_Click(object sender, EventArgs e)
@@ -105,7 +124,7 @@ namespace App_WinForms
             }
             else
             {
-                MessageBox.Show("Регистрация не выполнена. Возможно, атлет уже закреплен за тренером.");
+                MessageBox.Show("Регистрация не выполнена. Возможно, атлет уже закреплен за этим тренером.");
             }
         }
 
@@ -115,7 +134,7 @@ namespace App_WinForms
 
             if (athlete == null)
             {
-                MessageBox.Show("Сначала добавьте атлета.");
+                MessageBox.Show("Сначала выберите или добавьте атлета.");
                 return;
             }
 
@@ -134,7 +153,9 @@ namespace App_WinForms
 
             dataGridFilter.Rows.Clear();
 
-            foreach (Trainer trainer in logics.PersonalFilterTrainers(athlete))
+            var filteredTrainers = logics.PersonalFilterTrainers(athlete);
+
+            foreach (Trainer trainer in filteredTrainers)
             {
                 dataGridFilter.Rows.Add(
                     trainer.Id,
@@ -143,11 +164,13 @@ namespace App_WinForms
                     trainer.TrainingType,
                     trainer.Age,
                     trainer.WorkExperience,
-                    trainer.Athlete.Count);
+                    trainer.Athlete?.Count ?? 0);
             }
 
             if (dataGridFilter.Rows.Count == 0)
-                MessageBox.Show("Подходящих тренеров не найдено.");
+            {
+                MessageBox.Show("Подходящих тренеров по данному направлению не найдено.");
+            }
         }
 
         private void buttonRefreshRating_Click(object sender, EventArgs e)

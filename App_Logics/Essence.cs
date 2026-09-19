@@ -21,7 +21,7 @@
 
         public Trainer? trainer { get; set; }
 
-        public string? TypePersonalTraining { get; set; }
+        public TrainingType? TypePersonalTraining { get; set; }
     }
     public class Trainer
     {
@@ -34,6 +34,7 @@
 
         public int Age { get; set; }
         public int WorkExperience { get; set; }
+        public double Rating { get; set; }
         public List<Athlete> Athlete { get; set; } = new();
 
     }

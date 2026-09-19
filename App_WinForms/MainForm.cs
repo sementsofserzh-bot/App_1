@@ -18,7 +18,7 @@ namespace App_WinForms
         private void buttonEmployee_Click(object sender, EventArgs e)
         {
             // Вызываем проверку пароля. Укажи нужный пароль вместо "admin"
-            if (CheckPassword("admin"))
+            if (CheckPassword("1234"))
             {
                 using EmployeeForm form = new EmployeeForm(logics);
                 form.ShowDialog();

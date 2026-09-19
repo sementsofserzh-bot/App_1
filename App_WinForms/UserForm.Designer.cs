@@ -30,11 +30,12 @@ namespace App_WinForms
         private Label labelPersonalAthlete;
         private ComboBox comboPersonalAthlete;
         private Button buttonPersonalTraining;
-        private TextBox textPersonalResult; // Заменено на многострочный TextBox
+        private TextBox textPersonalResult;
         private Label labelFilterAthlete;
         private ComboBox comboFilterAthlete;
         private Button buttonFilter;
         private DataGridView dataGridFilter;
+        private Button buttonSignUpFromFilter; // Кнопка для быстрой записи
         private Button buttonRefreshRating;
         private DataGridView dataGridRating;
 
@@ -80,6 +81,7 @@ namespace App_WinForms
             labelFilterAthlete = new Label();
             comboFilterAthlete = new ComboBox();
             buttonFilter = new Button();
+            buttonSignUpFromFilter = new Button();
             dataGridFilter = new DataGridView();
             buttonRefreshRating = new Button();
             dataGridRating = new DataGridView();
@@ -222,7 +224,6 @@ namespace App_WinForms
             buttonPersonalTraining.Text = "Подобрать тренировку";
             buttonPersonalTraining.Click += buttonPersonalTraining_Click;
 
-            // Настройка огромного текстового поля для вывода
             textPersonalResult.Location = new Point(30, 120);
             textPersonalResult.Size = new Size(830, 380);
             textPersonalResult.Multiline = true;
@@ -232,11 +233,12 @@ namespace App_WinForms
             textPersonalResult.BackColor = Color.White;
             textPersonalResult.Text = "Результат подбора отобразится здесь...";
 
-            // tabFilter
+            // tabFilter (ПОДБОР ТРЕНЕРА)
             tabFilter.Controls.Add(labelFilterAthlete);
             tabFilter.Controls.Add(comboFilterAthlete);
             tabFilter.Controls.Add(buttonFilter);
             tabFilter.Controls.Add(dataGridFilter);
+            tabFilter.Controls.Add(buttonSignUpFromFilter);
             tabFilter.Location = new Point(4, 24);
             tabFilter.Padding = new Padding(3);
             tabFilter.Size = new Size(892, 532);
@@ -251,26 +253,35 @@ namespace App_WinForms
             comboFilterAthlete.Size = new Size(300, 23);
 
             buttonFilter.Location = new Point(410, 15);
-            buttonFilter.Size = new Size(180, 30);
-            buttonFilter.Text = "Подобрать тренеров";
+            buttonFilter.Size = new Size(200, 30);
+            buttonFilter.Text = "Рассчитать совместимость";
             buttonFilter.Click += buttonFilter_Click;
 
             dataGridFilter.AllowUserToAddRows = false;
             dataGridFilter.AllowUserToDeleteRows = false;
             dataGridFilter.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            dataGridFilter.Location = new Point(20, 65);
+            dataGridFilter.Location = new Point(20, 60);
             dataGridFilter.MultiSelect = false;
             dataGridFilter.ReadOnly = true;
             dataGridFilter.RowHeadersVisible = false;
             dataGridFilter.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dataGridFilter.Size = new Size(850, 445);
+            dataGridFilter.Size = new Size(850, 390);
             dataGridFilter.Columns.Add("Id", "ID");
-            dataGridFilter.Columns.Add("FullName", "ФИО");
+            dataGridFilter.Columns.Add("FullName", "ФИО Тренера");
             dataGridFilter.Columns.Add("Gender", "Пол");
-            dataGridFilter.Columns.Add("TrainingType", "Тип");
+            dataGridFilter.Columns.Add("TrainingType", "Специализация");
             dataGridFilter.Columns.Add("Age", "Возраст");
             dataGridFilter.Columns.Add("Experience", "Стаж");
             dataGridFilter.Columns.Add("Athletes", "Атлетов");
+            dataGridFilter.Columns.Add("Match", "Совместимость");
+
+            // Кнопка быстрой записи из окна фильтра
+            buttonSignUpFromFilter.Location = new Point(20, 465);
+            buttonSignUpFromFilter.Size = new Size(850, 45);
+            buttonSignUpFromFilter.Text = "Записаться к выбранному тренеру";
+            buttonSignUpFromFilter.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
+            buttonSignUpFromFilter.BackColor = Color.LightGreen;
+            buttonSignUpFromFilter.Click += buttonSignUpFromFilter_Click;
 
             // tabRating
             tabRating.Controls.Add(buttonRefreshRating);

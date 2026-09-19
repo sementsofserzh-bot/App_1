@@ -44,6 +44,7 @@ namespace App_Model_Logics
             Registration(t3, a3);
             Registration(t3, a7);
             Registration(t4, a5);
+            
 
         }
         int nextTrainer_ID = 0;
@@ -375,19 +376,17 @@ namespace App_Model_Logics
 
         public List<Trainer> PersonalFilterTrainers(Athlete athlete)
         {
-            if (athlete == null)
-            {
-                return new List<Trainer>();
-            }
+            if (athlete == null) return new List<Trainer>();
 
-            // Если программа еще не расчитывалась — рассчитываем ее
             if (athlete.TypePersonalTraining == null)
             {
                 PersonalTraining(athlete);
             }
 
-            // Фильтруем тренеров по рекомендованному типу тренировки из сохраненного свойства
-            return BD_Trainer.Where(t => t.TrainingType == athlete.TypePersonalTraining).ToList();
+            // Сортируем всех тренеров от лучшего совпадения к худшему
+            return BD_Trainer
+                .OrderByDescending(t => CalculateMatchPercentage(t, athlete))
+                .ToList();
         }
         public List<Trainer> RateTrainers()
         {
@@ -408,6 +407,42 @@ namespace App_Model_Logics
             if (trainer == null) { return 0; }
             double rating = (trainer.WorkExperience * 3.0) + (trainer.Athlete.Count * 10.0) - (trainer.Age * 0.5);
             return rating;
+        }
+        public int CalculateMatchPercentage(Trainer trainer, Athlete athlete)
+        {
+            if (trainer == null || athlete == null) return 0;
+
+            int score = 0;
+
+            // 1. Проверка по рекомендованной программе (до 45 баллов)
+            if (athlete.TypePersonalTraining == null)
+            {
+                PersonalTraining(athlete);
+            }
+
+            if (trainer.TrainingType == athlete.TypePersonalTraining)
+            {
+                score += 45;
+            }
+            else if (trainer.TrainingType.ToString().Contains(athlete.Gendre.ToString()))
+            {
+                score += 20;
+            }
+
+            // 2. Совпадение по полу (15 баллов)
+            if (trainer.Gendre == athlete.Gendre)
+            {
+                score += 15;
+            }
+
+            // 3. Опыт работы (до 20 баллов: 2 балла за каждый год)
+            score += Math.Min(trainer.WorkExperience * 2, 20);
+
+            // 4. Свобода графика (до 20 баллов: чем меньше забит тренер, тем выше балл)
+            int count = trainer.Athlete?.Count ?? 0;
+            score += Math.Max(0, 20 - (count * 4));
+
+            return Math.Min(score, 100);
         }
     }
 }

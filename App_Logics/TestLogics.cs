@@ -26,5 +26,7 @@ namespace App_Model_TestLogics
         string PersonalTraining(Athlete athlete);
         List<Trainer> PersonalFilterTrainers(Athlete athlete);
         List<Trainer> RateTrainers();
+
+        int CalculateMatchPercentage(Trainer trainer, Athlete athlete);
     }
 }

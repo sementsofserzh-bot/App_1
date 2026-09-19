@@ -145,10 +145,10 @@ namespace App_WinForms
                 return;
             }
 
-            // Вывод результата в многострочное текстовое поле
             textPersonalResult.Text = logics.PersonalTraining(athlete);
         }
 
+        // РАСЧЕТ И ОТОБРАЖЕНИЕ СОВМЕСТИМОСТИ
         private void buttonFilter_Click(object sender, EventArgs e)
         {
             Athlete? athlete = comboFilterAthlete.SelectedItem as Athlete;
@@ -161,10 +161,14 @@ namespace App_WinForms
 
             dataGridFilter.Rows.Clear();
 
-            var filteredTrainers = logics.PersonalFilterTrainers(athlete);
+            // Получаем список всех тренеров, отсортированных по проценту
+            var rankedTrainers = logics.PersonalFilterTrainers(athlete);
 
-            foreach (Trainer trainer in filteredTrainers)
+            foreach (Trainer trainer in rankedTrainers)
             {
+                // Высчитываем процент совпадения по нашей математической формуле
+                int matchPercent = logics.CalculateMatchPercentage(trainer, athlete);
+
                 dataGridFilter.Rows.Add(
                     trainer.Id,
                     trainer.FullName,
@@ -172,12 +176,50 @@ namespace App_WinForms
                     trainer.TrainingType,
                     trainer.Age,
                     trainer.WorkExperience,
-                    trainer.Athlete?.Count ?? 0);
+                    trainer.Athlete?.Count ?? 0,
+                    $"{matchPercent}%");
+            }
+        }
+
+        // ЗАПИСЬ К ТРЕНЕРУ ПРЯМО ИЗ ОКНА ПОДБОРА
+        private void buttonSignUpFromFilter_Click(object sender, EventArgs e)
+        {
+            Athlete? athlete = comboFilterAthlete.SelectedItem as Athlete;
+
+            if (athlete == null)
+            {
+                MessageBox.Show("Выберите атлета вверху страницы.");
+                return;
             }
 
-            if (dataGridFilter.Rows.Count == 0)
+            if (dataGridFilter.SelectedRows.Count == 0)
             {
-                MessageBox.Show("Подходящих тренеров по данному направлению не найдено.");
+                MessageBox.Show("Выберите тренера из таблицы, к которому хотите записаться.");
+                return;
+            }
+
+            // Достаем ID выделенного в таблице тренера
+            int trainerId = Convert.ToInt32(dataGridFilter.SelectedRows[0].Cells[0].Value);
+            Trainer? trainer = logics.CheckTrainer(trainerId);
+
+            if (trainer == null)
+            {
+                MessageBox.Show("Тренер не найден.");
+                return;
+            }
+
+            if (logics.Registration(trainer, athlete))
+            {
+                RefreshCombos();
+                RefreshRating();
+                buttonFilter_Click(sender, e); // Обновляем таблицу подбора
+
+                int matchPercent = logics.CalculateMatchPercentage(trainer, athlete);
+                MessageBox.Show($"Поздравляем! Атлет {athlete.FullName} успешно записан к тренеру {trainer.FullName}!\nСовместимость: {matchPercent}%.", "Успешная запись", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else
+            {
+                MessageBox.Show("Не удалось записаться. Возможно, атлет уже закреплен за этим тренером.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 

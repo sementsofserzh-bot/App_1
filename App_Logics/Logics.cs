@@ -38,14 +38,14 @@ namespace App_Model_Logics
             return BD_Athlete[BD_Athlete.Count - 1];
         }
         //удаление
-        public bool RemoveTrainer(int id)
+        public bool? RemoveTrainer(int id)
         {
             var trainer = BD_Trainer.FirstOrDefault(t => t.Id == id);
             if (trainer == null) { return false; }
             BD_Trainer.Remove(trainer);
             return true;
         }
-        public bool RemoveAthlete(int id)
+        public bool? RemoveAthlete(int id)
         {
             var athlete = BD_Athlete.FirstOrDefault(a => a.Id == id);
             if (athlete == null) { return false; }
@@ -219,13 +219,67 @@ namespace App_Model_Logics
             {
                 return "Атлет не найден!";
             }
-            if ((athlete.Age >= 15 && athlete.Age <= 17 && Gendre g = Gendre.М) || () ) //Пометка Глебу: Додумать условия для тренировок
+            double heightInM = athlete.Height / 100.0; //делаем рост в метрах
+            double IMT = athlete.Weight / (heightInM * heightInM); //считаем Индекс массы тела
+
+            TrainingType reccomendation;
+            if (athlete.Age < 18 && athlete.Age >= 14)
             {
-                TrainingType t = TrainingType.М_Выносливость;
-                string t_str = t.ToString();
-                return $"Вам подойдут следующие типы тренировок:{t_str} ";
+                if (IMT < 18.5)
+                {
+                    reccomendation = athlete.Gendre == Gendre.М ? TrainingType.М_Силовая : TrainingType.Ж_Силовая ;
+                }
+                else if (IMT >= 18.5 && IMT < 25.0)
+                {
+                    reccomendation = athlete.Gendre == Gendre.М ? TrainingType.М_Выносливость : TrainingType.Ж_Выносливость;
+                }
+                else { reccomendation = athlete.Gendre == Gendre.М ? TrainingType.М_Гибкость : TrainingType.Ж_Гибкость ; }
+            }
+            else if (athlete.Age >= 18 && athlete.Age <= 50)
+            {
+                if (IMT < 18.5)
+                {
+                    reccomendation = athlete.Gendre == Gendre.М ? TrainingType.М_Силовая : TrainingType.Ж_Силовая;
+                }
+                else if (IMT >= 18.5 && IMT < 25.0)
+                {
+                    reccomendation = athlete.Gendre == Gendre.М ? TrainingType.М_Выносливость : TrainingType.Ж_Выносливость;
+                }
+                else { reccomendation = athlete.Gendre == Gendre.М ? TrainingType.М_Гибкость : TrainingType.Ж_Гибкость; }
+            }
+            else { reccomendation = athlete.Gendre == Gendre.М ? TrainingType.М_Гибкость : TrainingType.Ж_Гибкость ; }
+            athlete.TypePersonalTraining = reccomendation;
+            return $"Спортсмен: {athlete.FullName} \n Возраст - {athlete.Age} \n Рост - {athlete.Height} \n Вес - {athlete.Weight}" 
+                + $"\n Рекомендация по тренировке - {reccomendation}";
+        }
+        public List<Trainer> PersonalFilterTrainers(Athlete athlete) 
+        {
+            if (athlete == null) { return new List<Trainer>(); }
+            if (athlete.TypePersonalTraining == null) 
+            {
+                PersonalTraining(athlete);
+            }
+            return BD_Trainer.Where(t => t.TrainingType == athlete.TypePersonalTraining).ToList();
+        }
+        public List<Trainer> RateTrainers()
+        {
+            if (BD_Trainer.Count == 0)
+            {
+                return new List<Trainer>();
             }
             
+            foreach (var t in BD_Trainer)
+            {
+                t.Rating = CalculateRating(t);
+            }
+            return BD_Trainer.OrderByDescending(t => t.Rating).ToList();
+            
+        }
+        public double CalculateRating(Trainer trainer)
+        {
+            if (trainer == null) { return 0; }
+            double rating = (trainer.WorkExperience * 3.0) + (trainer.Athlete.Count * 10.0) - (trainer.Age * 0.5);
+            return rating;
         }
     }
 }

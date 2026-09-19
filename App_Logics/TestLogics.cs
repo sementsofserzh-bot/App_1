@@ -29,132 +29,132 @@ namespace App_Model_TestLogics
         
     }
 
-    public class Logics : ILogics
-    {
-        public List<Trainer> BD_Trainer { get; set; } = new();
-        public List<Athlete> BD_Athlete { get; set; } = new();
+    //public class Logics : ILogics
+    //{
+    //    public List<Trainer> BD_Trainer { get; set; } = new();
+    //    public List<Athlete> BD_Athlete { get; set; } = new();
 
-        // =========================
-        // ДОБАВЛЕНИЕ
-        // =========================
+    //    // =========================
+    //    // ДОБАВЛЕНИЕ
+    //    // =========================
 
-        public Trainer AddTrainer(
-            string fullname,
-            Gendre gendre,
-            TrainingType trainingType,
-            int age,
-            int workExperience)
-        {
-            throw new NotImplementedException();
-        }
+    //    public Trainer AddTrainer(
+    //        string fullname,
+    //        Gendre gendre,
+    //        TrainingType trainingType,
+    //        int age,
+    //        int workExperience)
+    //    {
+    //        throw new NotImplementedException();
+    //    }
 
-        public Athlete AddAthlete(
-            string fullname,
-            Gendre gendre,
-            TrainingType trainingType,
-            int age,
-            int height,
-            int weight)
-        {
-            throw new NotImplementedException();
-        }
+    //    public Athlete AddAthlete(
+    //        string fullname,
+    //        Gendre gendre,
+    //        TrainingType trainingType,
+    //        int age,
+    //        int height,
+    //        int weight)
+    //    {
+    //        throw new NotImplementedException();
+    //    }
 
-        // =========================
-        // УДАЛЕНИЕ
-        // =========================
+    //    // =========================
+    //    // УДАЛЕНИЕ
+    //    // =========================
 
-        public bool? RemoveTrainer(int id)
-        {
-            throw new NotImplementedException();
-        }
+    //    public bool? RemoveTrainer(int id)
+    //    {
+    //        throw new NotImplementedException();
+    //    }
 
-        public bool? RemoveAthlete(int id)
-        {
-            throw new NotImplementedException();
-        }
+    //    public bool? RemoveAthlete(int id)
+    //    {
+    //        throw new NotImplementedException();
+    //    }
 
-        // =========================
-        // ПРОВЕРКА
-        // =========================
+    //    // =========================
+    //    // ПРОВЕРКА
+    //    // =========================
 
-        public Trainer? CheckTrainer(int id)
-        {
-            throw new NotImplementedException();
-        }
+    //    public Trainer? CheckTrainer(int id)
+    //    {
+    //        throw new NotImplementedException();
+    //    }
 
-        public Athlete? CheckAthlete(int id)
-        {
-            throw new NotImplementedException();
-        }
+    //    public Athlete? CheckAthlete(int id)
+    //    {
+    //        throw new NotImplementedException();
+    //    }
 
-        // =========================
-        // ОБНОВЛЕНИЕ ТРЕНЕРА
-        // =========================
+    //    // =========================
+    //    // ОБНОВЛЕНИЕ ТРЕНЕРА
+    //    // =========================
 
-        public Trainer? UpdateInfoTrainer(
-            int id,
-            string? fullname,
-            Gendre? gendre,
-            TrainingType? trainingType,
-            int? age,
-            int? workExperience,
-            List<Athlete>? deleteathlete,
-            List<Athlete>? addathlete)
-        {
-            throw new NotImplementedException();
-        }
+    //    public Trainer? UpdateInfoTrainer(
+    //        int id,
+    //        string? fullname,
+    //        Gendre? gendre,
+    //        TrainingType? trainingType,
+    //        int? age,
+    //        int? workExperience,
+    //        List<Athlete>? deleteathlete,
+    //        List<Athlete>? addathlete)
+    //    {
+    //        throw new NotImplementedException();
+    //    }
 
-        // =========================
-        // ОБНОВЛЕНИЕ АТЛЕТА
-        // =========================
+    //    // =========================
+    //    // ОБНОВЛЕНИЕ АТЛЕТА
+    //    // =========================
 
-        public Athlete? UpdateInfoAthlete(
-            int id,
-            string? fullname,
-            Gendre? gendre,
-            int? age,
-            int? height,
-            int? weight,
-            TrainingType? trainingType,
-            Trainer? trainer)
-        {
-            throw new NotImplementedException();
-        }
+    //    public Athlete? UpdateInfoAthlete(
+    //        int id,
+    //        string? fullname,
+    //        Gendre? gendre,
+    //        int? age,
+    //        int? height,
+    //        int? weight,
+    //        TrainingType? trainingType,
+    //        Trainer? trainer)
+    //    {
+    //        throw new NotImplementedException();
+    //    }
 
-        // =========================
-        // РЕГИСТРАЦИЯ
-        // =========================
+    //    // =========================
+    //    // РЕГИСТРАЦИЯ
+    //    // =========================
 
-        public bool Registration(Trainer trainer, Athlete athlete)
-        {
-            throw new NotImplementedException();
-        }
+    //    public bool Registration(Trainer trainer, Athlete athlete)
+    //    {
+    //        throw new NotImplementedException();
+    //    }
 
-        // =========================
-        // ПЕРСОНАЛЬНАЯ ТРЕНИРОВКА
-        // =========================
+    //    // =========================
+    //    // ПЕРСОНАЛЬНАЯ ТРЕНИРОВКА
+    //    // =========================
 
-        public string PersonalTraining(Athlete athlete)
-        {
-            throw new NotImplementedException();
-        }
+    //    public string PersonalTraining(Athlete athlete)
+    //    {
+    //        throw new NotImplementedException();
+    //    }
 
-        // =========================
-        // ФИЛЬТР ТРЕНЕРОВ
-        // =========================
+    //    // =========================
+    //    // ФИЛЬТР ТРЕНЕРОВ
+    //    // =========================
 
-        public List<Trainer> PersonalFilterTrainers(Athlete athlete)
-        {
-            throw new NotImplementedException();
-        }
+    //    public List<Trainer> PersonalFilterTrainers(Athlete athlete)
+    //    {
+    //        throw new NotImplementedException();
+    //    }
 
-        // =========================
-        // РЕЙТИНГ ТРЕНЕРОВ
-        // =========================
+    //    // =========================
+    //    // РЕЙТИНГ ТРЕНЕРОВ
+    //    // =========================
 
-        public List<Trainer> RateTrainers()
-        {
-            throw new NotImplementedException();
-        }
-    }
+    //    public List<Trainer> RateTrainers()
+    //    {
+    //        throw new NotImplementedException();
+    //    }
+    //}
 }

@@ -10,26 +10,22 @@
         private System.Windows.Forms.TabPage tabRegistration;
         private System.Windows.Forms.TabPage tabBusiness;
 
-        // Trainers UI
         private System.Windows.Forms.DataGridView dgvTrainers;
         private System.Windows.Forms.Button btnAddTrainer;
         private System.Windows.Forms.Button btnEditTrainer;
         private System.Windows.Forms.Button btnDeleteTrainer;
 
-        // Athletes UI
         private System.Windows.Forms.DataGridView dgvAthletes;
         private System.Windows.Forms.Button btnAddAthlete;
         private System.Windows.Forms.Button btnEditAthlete;
         private System.Windows.Forms.Button btnDeleteAthlete;
 
-        // Registration UI
         private System.Windows.Forms.ComboBox cmbRegAthlete;
         private System.Windows.Forms.ComboBox cmbRegTrainer;
         private System.Windows.Forms.Button btnRegister;
         private System.Windows.Forms.Label lblRegAthlete;
         private System.Windows.Forms.Label lblRegTrainer;
 
-        // Business UI
         private System.Windows.Forms.ComboBox cmbBizAthlete;
         private System.Windows.Forms.Label lblBizAthlete;
         private System.Windows.Forms.Button btnCalcTraining;
@@ -50,6 +46,7 @@
 
         private void InitializeComponent()
         {
+            
             this.tabControlMain = new System.Windows.Forms.TabControl();
             this.tabTrainers = new System.Windows.Forms.TabPage();
             this.dgvTrainers = new System.Windows.Forms.DataGridView();
@@ -90,7 +87,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.dgvBizTrainers)).BeginInit();
             this.SuspendLayout();
 
-            // tabControlMain
             this.tabControlMain.Controls.Add(this.tabTrainers);
             this.tabControlMain.Controls.Add(this.tabAthletes);
             this.tabControlMain.Controls.Add(this.tabRegistration);
@@ -101,7 +97,6 @@
             this.tabControlMain.SelectedIndex = 0;
             this.tabControlMain.Size = new System.Drawing.Size(884, 511);
 
-            // Tab Trainers
             this.tabTrainers.Controls.Add(this.dgvTrainers);
             this.tabTrainers.Controls.Add(this.btnAddTrainer);
             this.tabTrainers.Controls.Add(this.btnEditTrainer);
@@ -132,7 +127,6 @@
             this.btnDeleteTrainer.Text = "Удалить";
             this.btnDeleteTrainer.Click += new System.EventHandler(this.btnDeleteTrainer_Click);
 
-            // Tab Athletes
             this.tabAthletes.Controls.Add(this.dgvAthletes);
             this.tabAthletes.Controls.Add(this.btnAddAthlete);
             this.tabAthletes.Controls.Add(this.btnEditAthlete);
@@ -163,7 +157,6 @@
             this.btnDeleteAthlete.Text = "Удалить";
             this.btnDeleteAthlete.Click += new System.EventHandler(this.btnDeleteAthlete_Click);
 
-            // Tab Registration
             this.tabRegistration.Controls.Add(this.lblRegAthlete);
             this.tabRegistration.Controls.Add(this.cmbRegAthlete);
             this.tabRegistration.Controls.Add(this.lblRegTrainer);
@@ -192,7 +185,6 @@
             this.btnRegister.Text = "Зарегистрировать за тренером";
             this.btnRegister.Click += new System.EventHandler(this.btnRegister_Click);
 
-            // Tab Business
             this.tabBusiness.Controls.Add(this.lblBizAthlete);
             this.tabBusiness.Controls.Add(this.cmbBizAthlete);
             this.tabBusiness.Controls.Add(this.btnCalcTraining);
@@ -235,7 +227,6 @@
             this.dgvBizTrainers.ReadOnly = true;
             this.dgvBizTrainers.Size = new System.Drawing.Size(830, 320);
 
-            // Form1
             this.ClientSize = new System.Drawing.Size(884, 511);
             this.Controls.Add(this.tabControlMain);
             this.Name = "Form1";

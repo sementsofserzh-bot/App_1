@@ -1,6 +1,7 @@
 using System;
 using System.Windows.Forms;
 using App_Model_TestLogics; // Подключаем пространство имен с логикой
+using App_Model_Logics;
 
 namespace App_WinForms
 {
@@ -16,7 +17,7 @@ namespace App_WinForms
             // Application.SetCompatibleTextRenderingDefault(false);
 
             // 1. Создаем единый экземпляр нашей заглушки со всеми тестовыми данными
-            ILogics logics = new Logics();
+            Logics logics = new Logics();
 
             // 2. Передаем готовую логику в главную форму при запуске
             Application.Run(new MainForm(logics));

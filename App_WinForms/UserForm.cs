@@ -88,21 +88,28 @@ namespace App_WinForms
                 return;
             }
 
-            Athlete athlete = logics.AddAthlete(
-                textFullName.Text,
-                (Gendre)comboGender.SelectedItem!,
-                (TrainingType)comboTrainingType.SelectedItem!,
-                age,
-                height,
-                weight);
+            try
+            {
+                Athlete athlete = logics.AddAthlete(
+                    textFullName.Text,
+                    (Gendre)comboGender.SelectedItem!,
+                    (TrainingType)comboTrainingType.SelectedItem!,
+                    age,
+                    height,
+                    weight);
 
-            RefreshCombos();
-            MessageBox.Show($"Атлет {athlete.FullName} успешно добавлен.");
+                RefreshCombos();
+                MessageBox.Show($"Атлет {athlete.FullName} успешно добавлен.");
 
-            textFullName.Clear();
-            textAge.Clear();
-            textHeight.Clear();
-            textWeight.Clear();
+                textFullName.Clear();
+                textAge.Clear();
+                textHeight.Clear();
+                textWeight.Clear();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка: {ex.Message}");
+            }
         }
 
         private void buttonRegistration_Click(object sender, EventArgs e)
@@ -138,7 +145,8 @@ namespace App_WinForms
                 return;
             }
 
-            labelPersonalResult.Text = logics.PersonalTraining(athlete);
+            // Вывод результата в многострочное текстовое поле
+            textPersonalResult.Text = logics.PersonalTraining(athlete);
         }
 
         private void buttonFilter_Click(object sender, EventArgs e)

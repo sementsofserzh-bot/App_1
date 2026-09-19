@@ -30,7 +30,7 @@ namespace App_WinForms
         private Label labelPersonalAthlete;
         private ComboBox comboPersonalAthlete;
         private Button buttonPersonalTraining;
-        private Label labelPersonalResult;
+        private TextBox textPersonalResult; // Заменено на многострочный TextBox
         private Label labelFilterAthlete;
         private ComboBox comboFilterAthlete;
         private Button buttonFilter;
@@ -76,7 +76,7 @@ namespace App_WinForms
             labelPersonalAthlete = new Label();
             comboPersonalAthlete = new ComboBox();
             buttonPersonalTraining = new Button();
-            labelPersonalResult = new Label();
+            textPersonalResult = new TextBox();
             labelFilterAthlete = new Label();
             comboFilterAthlete = new ComboBox();
             buttonFilter = new Button();
@@ -203,7 +203,7 @@ namespace App_WinForms
             tabPersonal.Controls.Add(labelPersonalAthlete);
             tabPersonal.Controls.Add(comboPersonalAthlete);
             tabPersonal.Controls.Add(buttonPersonalTraining);
-            tabPersonal.Controls.Add(labelPersonalResult);
+            tabPersonal.Controls.Add(textPersonalResult);
             tabPersonal.Location = new Point(4, 24);
             tabPersonal.Padding = new Padding(3);
             tabPersonal.Size = new Size(892, 532);
@@ -211,23 +211,26 @@ namespace App_WinForms
             tabPersonal.UseVisualStyleBackColor = true;
 
             labelPersonalAthlete.AutoSize = true;
-            labelPersonalAthlete.Location = new Point(30, 45);
+            labelPersonalAthlete.Location = new Point(30, 30);
             labelPersonalAthlete.Text = "Атлет:";
             comboPersonalAthlete.DropDownStyle = ComboBoxStyle.DropDownList;
-            comboPersonalAthlete.Location = new Point(150, 42);
+            comboPersonalAthlete.Location = new Point(150, 27);
             comboPersonalAthlete.Size = new Size(320, 23);
 
-            buttonPersonalTraining.Location = new Point(150, 90);
+            buttonPersonalTraining.Location = new Point(150, 65);
             buttonPersonalTraining.Size = new Size(320, 40);
             buttonPersonalTraining.Text = "Подобрать тренировку";
             buttonPersonalTraining.Click += buttonPersonalTraining_Click;
 
-            labelPersonalResult.AutoSize = false;
-            labelPersonalResult.Location = new Point(30, 155);
-            labelPersonalResult.Size = new Size(800, 60);
-            labelPersonalResult.BorderStyle = BorderStyle.FixedSingle;
-            labelPersonalResult.Text = "Результат появится здесь";
-            labelPersonalResult.Padding = new Padding(10);
+            // Настройка огромного текстового поля для вывода
+            textPersonalResult.Location = new Point(30, 120);
+            textPersonalResult.Size = new Size(830, 380);
+            textPersonalResult.Multiline = true;
+            textPersonalResult.ReadOnly = true;
+            textPersonalResult.ScrollBars = ScrollBars.Vertical;
+            textPersonalResult.Font = new Font("Segoe UI", 11F, FontStyle.Regular);
+            textPersonalResult.BackColor = Color.White;
+            textPersonalResult.Text = "Результат подбора отобразится здесь...";
 
             // tabFilter
             tabFilter.Controls.Add(labelFilterAthlete);
@@ -316,6 +319,7 @@ namespace App_WinForms
             tabFilter.ResumeLayout(false);
             tabFilter.PerformLayout();
             tabPersonal.ResumeLayout(false);
+            tabPersonal.PerformLayout();
             tabRegistration.ResumeLayout(false);
             tabRegistration.PerformLayout();
             tabAddAthlete.ResumeLayout(false);

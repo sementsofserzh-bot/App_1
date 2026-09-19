@@ -10,6 +10,42 @@ namespace App_Model_Logics
     {
         public List<Trainer> BD_Trainer { get; set; } = new();
         public List<Athlete> BD_Athlete { get; set; } = new();
+
+        public Logics()
+        {
+            SeedInitialData();
+        }
+
+        private void SeedInitialData()
+        {
+            var t1 = AddTrainer("Соколов Виктор Игоревич", Gendre.М, TrainingType.М_Силовая, 38, 12);
+            var t2 = AddTrainer("Морозова Анна Сергеевна", Gendre.Ж, TrainingType.Ж_Выносливость, 29, 6);
+            var t3 = AddTrainer("Кузнецов Дмитрий Анатольевич", Gendre.М, TrainingType.М_Гибкость, 45, 18);
+            var t4 = AddTrainer("Трифонова Алена Александровна", Gendre.Ж, TrainingType.Ж_Гибкость, 40, 18);
+            var t5 = AddTrainer("Семенцов Сергей Витальевич", Gendre.М, TrainingType.Ж_Гибкость, 50, 20);
+
+
+            var a1 = AddAthlete("Волков Артём Денисович", Gendre.М, TrainingType.М_Силовая, 16, 185, 63);
+            var a2 = AddAthlete("Зайцева Алина Максимовна", Gendre.Ж, TrainingType.Ж_Силовая, 20, 165, 55);
+            var a3 = AddAthlete("Смирнов Михаил Александрович", Gendre.М, TrainingType.М_Гибкость, 32, 178, 95);
+            var a4 = AddAthlete("Павлова Екатерина Дмитриевна", Gendre.Ж, TrainingType.Ж_Выносливость, 24, 170, 58);
+            var a5 = AddAthlete("Федоров Егор Романович", Gendre.М, TrainingType.М_Выносливость, 15, 172, 60);
+            var a6 = AddAthlete("Романова Мария Владимировна", Gendre.Ж, TrainingType.Ж_Гибкость, 42, 162, 68);
+            var a7 = AddAthlete("Попов Никита Васильевич", Gendre.М, TrainingType.М_Гибкость, 55, 180, 85);
+            var a8 = AddAthlete("Козлова София Евгеньевна", Gendre.Ж, TrainingType.Ж_Выносливость, 22, 168, 54);
+
+            Registration(t1, a1);
+            Registration(t1, a2);
+
+            Registration(t2, a4);
+            Registration(t2, a6);
+            Registration(t2, a8);
+
+            Registration(t3, a3);
+            Registration(t3, a7);
+            Registration(t4, a5);
+
+        }
         int nextTrainer_ID = 0;
         int nextAthlete_ID = 0;
         //Добавление
@@ -42,13 +78,43 @@ namespace App_Model_Logics
         {
             var trainer = BD_Trainer.FirstOrDefault(t => t.Id == id);
             if (trainer == null) { return false; }
+
+            if (trainer.Athlete != null)
+            {
+                foreach (var athlete in trainer.Athlete.ToList())
+                {
+                    athlete.trainer = null;
+                }
+                trainer.Athlete.Clear();
+            }
+
+            foreach (var athlete in BD_Athlete)
+            {
+                if (athlete.trainer != null && athlete.trainer.Id == id)
+                {
+                    athlete.trainer = null;
+                }
+            }
+
             BD_Trainer.Remove(trainer);
             return true;
         }
+
         public bool? RemoveAthlete(int id)
         {
             var athlete = BD_Athlete.FirstOrDefault(a => a.Id == id);
             if (athlete == null) { return false; }
+
+            if (athlete.trainer != null)
+            {
+                var trainer = BD_Trainer.FirstOrDefault(t => t.Id == athlete.trainer.Id);
+                if (trainer != null && trainer.Athlete != null)
+                {
+                    trainer.Athlete.RemoveAll(a => a.Id == id);
+                }
+                athlete.trainer = null;
+            }
+
             BD_Athlete.Remove(athlete);
             return true;
         }
@@ -219,46 +285,108 @@ namespace App_Model_Logics
             {
                 return "Атлет не найден!";
             }
-            double heightInM = athlete.Height / 100.0; //делаем рост в метрах
-            double IMT = athlete.Weight / (heightInM * heightInM); //считаем Индекс массы тела
 
-            TrainingType reccomendation;
-            if (athlete.Age < 18 && athlete.Age >= 14)
+            // 1. Расчет ИМТ
+            double heightInM = athlete.Height / 100.0;
+            double bmi = athlete.Weight / (heightInM * heightInM);
+
+            // 2. Расчет поправок для формулы
+            double genderDelta = (athlete.Gendre == Gendre.М) ? -1.0 : 1.5;
+
+            double prefDelta = 0.0;
+            if (athlete.TrainingType == TrainingType.М_Силовая || athlete.TrainingType == TrainingType.Ж_Силовая)
+                prefDelta = -3.0;
+            else if (athlete.TrainingType == TrainingType.М_Гибкость || athlete.TrainingType == TrainingType.Ж_Гибкость)
+                prefDelta = 4.0;
+
+            double ageDelta = athlete.Age >= 40 ? (athlete.Age - 40) * 0.25 : 0.0;
+
+            // 3. Вычисление итогового Индекса Нагрузки
+            double fitnessIndex = bmi + genderDelta + prefDelta + ageDelta;
+
+            // 4. Подбор одного из 5 планов и назначение типа для фильтрации тренеров
+            string planTitle;
+            string planGoal;
+            string planSchedule;
+            string planDetails;
+            TrainingType recommendedType;
+
+            if (fitnessIndex < 19.0)
             {
-                if (IMT < 18.5)
-                {
-                    reccomendation = athlete.Gendre == Gendre.М ? TrainingType.М_Силовая : TrainingType.Ж_Силовая ;
-                }
-                else if (IMT >= 18.5 && IMT < 25.0)
-                {
-                    reccomendation = athlete.Gendre == Gendre.М ? TrainingType.М_Выносливость : TrainingType.Ж_Выносливость;
-                }
-                else { reccomendation = athlete.Gendre == Gendre.М ? TrainingType.М_Гибкость : TrainingType.Ж_Гибкость ; }
+                planTitle = "ПЛАН 1: Базовый Массонабор & Сила";
+                planGoal = "Набор мышечной массы, рост силовых показателей.";
+                planSchedule = "3 раза в неделю (Понедельник / Среда / Пятница)";
+                planDetails = "• Тяжелая база: Приседания, Жим лежа, Становая тяга, Подтягивания.\n• Объем: 3-4 подхода по 6-8 повторений.\n• Кардио: Минимальное (5 минут разминки).";
+                recommendedType = athlete.Gendre == Gendre.М ? TrainingType.М_Силовая : TrainingType.Ж_Силовая;
             }
-            else if (athlete.Age >= 18 && athlete.Age <= 50)
+            else if (fitnessIndex >= 19.0 && fitnessIndex < 24.0)
             {
-                if (IMT < 18.5)
-                {
-                    reccomendation = athlete.Gendre == Gendre.М ? TrainingType.М_Силовая : TrainingType.Ж_Силовая;
-                }
-                else if (IMT >= 18.5 && IMT < 25.0)
-                {
-                    reccomendation = athlete.Gendre == Gendre.М ? TrainingType.М_Выносливость : TrainingType.Ж_Выносливость;
-                }
-                else { reccomendation = athlete.Gendre == Gendre.М ? TrainingType.М_Гибкость : TrainingType.Ж_Гибкость; }
+                planTitle = "ПЛАН 2: Силовой Рельеф & Гипертрофия";
+                planGoal = "Проработка рельефа мышц, гипертрофия, сбалансированное телосложение.";
+                planSchedule = "4 раза в неделю (Сплит: Грудь/Трицепс, Спина/Бицепс, Ноги/Плечи)";
+                planDetails = "• Сочетание базовых и изолирующих упражнений.\n• Объем: 3-4 подхода по 8-12 повторений.\n• Кардио: 15 минут заминки в конце тренировки.";
+                recommendedType = athlete.Gendre == Gendre.М ? TrainingType.М_Силовая : TrainingType.Ж_Силовая;
             }
-            else { reccomendation = athlete.Gendre == Gendre.М ? TrainingType.М_Гибкость : TrainingType.Ж_Гибкость ; }
-            athlete.TypePersonalTraining = reccomendation;
-            return $"Спортсмен: {athlete.FullName} \n Возраст - {athlete.Age} \n Рост - {athlete.Height} \n Вес - {athlete.Weight}" 
-                + $"\n Рекомендация по тренировке - {reccomendation}";
+            else if (fitnessIndex >= 24.0 && fitnessIndex < 28.0)
+            {
+                planTitle = "ПЛАН 3: Атлетический Баланс & Кроссфит";
+                planGoal = "Развитие выносливости, плотности мышц и функциональной силы.";
+                planSchedule = "3-4 раза в неделю";
+                planDetails = "• Круговые тренировки (работа с гирями, гантелями, брусьями).\n• Объем: 3-4 круга по 10-15 повторений.\n• Кардио: Гребной тренажер / бег 15 минут.";
+                recommendedType = athlete.Gendre == Gendre.М ? TrainingType.М_Выносливость : TrainingType.Ж_Выносливость;
+            }
+            else if (fitnessIndex >= 28.0 && fitnessIndex < 33.0)
+            {
+                planTitle = "ПЛАН 4: Жиросжигающий Интенсив (HIIT & Сушка)";
+                planGoal = "Активное жиросжигание, сушка, ускорение метаболизма.";
+                planSchedule = "4 раза в неделю";
+                planDetails = "• Высокоинтенсивный интервальный тренинг (HIIT) и суперсеты.\n• Объем: 4 подхода по 15-20 повторений с коротким отдыхом.\n• Кардио: 25 минут эллипса или беговой дорожки в целевой зоне пульса.";
+                recommendedType = athlete.Gendre == Gendre.М ? TrainingType.М_Выносливость : TrainingType.Ж_Выносливость;
+            }
+            else
+            {
+                planTitle = "ПЛАН 5: Оздоровительный Фитнес, Осанка & Гибкость";
+                planGoal = "Укрепление суставов и связок, улучшение гибкости, снятие спазмов.";
+                planSchedule = "3 раза в неделю";
+                planDetails = "• Пилатес, упражнения с фитболом и фитнес-резинками, суставная гимнастика.\n• Объем: Мягкая нагрузка, 12-15 плавных повторений.\n• Растяжка: 20 минут глубокого стретчинга и МФР-ролл.";
+                recommendedType = athlete.Gendre == Gendre.М ? TrainingType.М_Гибкость : TrainingType.Ж_Гибкость;
+            }
+
+            // Сохраняем рекомендованное направление для корректного поиска тренеров в PersonalFilterTrainers
+            athlete.TypePersonalTraining = recommendedType;
+
+            // Формируем красивый итоговый отчет для многострочного TextBox
+            return $"=== ИНДИВИДУАЛЬНЫЙ РАСЧЕТ ПРОГРАММЫ ===" + Environment.NewLine +
+                   $"Атлет: {athlete.FullName} ({athlete.Gendre})" + Environment.NewLine +
+                   $"Параметры: Возраст — {athlete.Age} лет | Рост — {athlete.Height} см | Вес — {athlete.Weight} кг" + Environment.NewLine +
+                   $"ИМТ: {bmi:F1} | Индекс нагрузки (по формуле): {fitnessIndex:F1}" + Environment.NewLine +
+                   $"Предпочтение атлета: {athlete.TrainingType}" + Environment.NewLine +
+                   Environment.NewLine +
+                   $"--------------------------------------------------" + Environment.NewLine +
+                   $"НАЗНАЧЕННАЯ ПРОГРАММА: {planTitle}" + Environment.NewLine +
+                   $"--------------------------------------------------" + Environment.NewLine +
+                   $"🎯 Цель: {planGoal}" + Environment.NewLine +
+                   $"📅 График: {planSchedule}" + Environment.NewLine +
+                   $"📋 Содержание тренировок:" + Environment.NewLine +
+                   $"{planDetails}" + Environment.NewLine +
+                   Environment.NewLine +
+                   $"Рекомендованный тип специализации тренера: {recommendedType}";
         }
-        public List<Trainer> PersonalFilterTrainers(Athlete athlete) 
+
+        public List<Trainer> PersonalFilterTrainers(Athlete athlete)
         {
-            if (athlete == null) { return new List<Trainer>(); }
-            if (athlete.TypePersonalTraining == null) 
+            if (athlete == null)
+            {
+                return new List<Trainer>();
+            }
+
+            // Если программа еще не расчитывалась — рассчитываем ее
+            if (athlete.TypePersonalTraining == null)
             {
                 PersonalTraining(athlete);
             }
+
+            // Фильтруем тренеров по рекомендованному типу тренировки из сохраненного свойства
             return BD_Trainer.Where(t => t.TrainingType == athlete.TypePersonalTraining).ToList();
         }
         public List<Trainer> RateTrainers()

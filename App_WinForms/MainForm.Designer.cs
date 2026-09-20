@@ -24,7 +24,6 @@ namespace App_WinForms
             buttonExit = new Button();
             SuspendLayout();
 
-            // labelTitle
             labelTitle.AutoSize = true;
             labelTitle.Font = new Font("Segoe UI", 20F, FontStyle.Bold);
             labelTitle.Location = new Point(115, 35);
@@ -33,7 +32,6 @@ namespace App_WinForms
             labelTitle.TabIndex = 0;
             labelTitle.Text = "PRIME TIME";
 
-            // buttonEmployee
             buttonEmployee.Location = new Point(95, 100);
             buttonEmployee.Name = "buttonEmployee";
             buttonEmployee.Size = new Size(290, 45);
@@ -42,7 +40,6 @@ namespace App_WinForms
             buttonEmployee.UseVisualStyleBackColor = true;
             buttonEmployee.Click += buttonEmployee_Click;
 
-            // buttonUser
             buttonUser.Location = new Point(95, 160);
             buttonUser.Name = "buttonUser";
             buttonUser.Size = new Size(290, 45);
@@ -51,7 +48,6 @@ namespace App_WinForms
             buttonUser.UseVisualStyleBackColor = true;
             buttonUser.Click += buttonUser_Click;
 
-            // buttonExit
             buttonExit.Location = new Point(95, 220);
             buttonExit.Name = "buttonExit";
             buttonExit.Size = new Size(290, 45);
@@ -60,7 +56,6 @@ namespace App_WinForms
             buttonExit.UseVisualStyleBackColor = true;
             buttonExit.Click += buttonExit_Click;
 
-            // MainForm
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(480, 315);

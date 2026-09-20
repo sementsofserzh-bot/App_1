@@ -13,26 +13,44 @@ namespace App_WinForms
     public partial class Form1 : Form
     {
         private readonly ILogics _logics;
-
+        /// <summary>
+        /// Создаёт экземпляр Form1, инициализирует компоненты формы и создаёт экземпляр Logics.
+        /// </summary>
+        /// <remarks>Вызов InitializeComponent настраивает элементы интерфейса; затем поле _logics
+        /// инициализируется новым объектом Logics.</remarks>
         public Form1()
         {
             InitializeComponent();
             _logics = new Logics();
         }
-
+        /// <summary>
+        /// Инициализация при загрузке формы; обновляет все данные вызовом RefreshAllData.
+        /// </summary>
+        /// <remarks>Использует RefreshAllData для подготовки отображаемых данных.</remarks>
+        /// <param name="sender">Источник события загрузки.</param>
+        /// <param name="e">Аргументы события загрузки формы.</param>
         private void Form1_Load(object sender, EventArgs e)
         {
             RefreshAllData();
         }
-
-        // Обновление всех списков и таблиц
+        /// <summary>
+        /// Обновляет данные интерфейса: перезагружает таблицы тренеров и атлетов и обновляет связанные элементы
+        /// ComboBox.
+        /// </summary>
+        /// <remarks>Вызывать из UI‑потока. Операция синхронная и не выполняет длительных фоновых
+        /// задач.</remarks>
         private void RefreshAllData()
         {
             RefreshTrainersGrid();
             RefreshAthletesGrid();
             RefreshComboBoxes();
         }
-
+        /// <summary>
+        /// Обновляет источник данных dgvTrainers, устанавливая проекцию записей из _logics.BD_Trainer с полями Id, ФИО,
+        /// Пол, Специализация, Возраст, Стаж_Лет и количеством закреплённых атлетов.
+        /// </summary>
+        /// <remarks>Очищает DataSource перед присвоением. Если _logics.BD_Trainer равен null или при
+        /// возникновении исключения — ошибка игнорируется. Должен вызываться из UI-потока.</remarks>
         private void RefreshTrainersGrid()
         {
             try
@@ -53,10 +71,15 @@ namespace App_WinForms
             }
             catch (Exception ex)
             {
-                // Игнорируем или выводим ошибку, если BD_Trainer равен null
             }
         }
-
+        /// <summary>
+        /// Обновляет DataGridView dgvAthletes: формирует и присваивает источник данных со списком спортсменов и
+        /// отображаемыми названиями столбцов.
+        /// </summary>
+        /// <remarks>Проекция выполняется из _logics.BD_Athlete в анонимный тип с русскими заголовками
+        /// столбцов; при отсутствии данных DataSource предварительно сбрасывается в null. Исключения перехватываются и
+        /// подавляются. Вызывать из UI‑потока.</remarks>
         private void RefreshAthletesGrid()
         {
             try
@@ -80,12 +103,16 @@ namespace App_WinForms
             {
             }
         }
-
+        /// <summary>
+        /// Обновляет DataSource, DisplayMember и ValueMember для cmbRegAthlete, cmbRegTrainer и cmbBizAthlete на основе
+        /// коллекций в _logics.
+        /// </summary>
+        /// <remarks>Если коллекции отсутствуют, DataSource устанавливается в null. Исключения,
+        /// возникающие при обновлении, подавляются.</remarks>
         private void RefreshComboBoxes()
         {
             try
             {
-                // Настройка выпадающих списков для регистрации
                 cmbRegAthlete.DataSource = _logics.BD_Athlete?.ToList();
                 cmbRegAthlete.DisplayMember = "FullName";
                 cmbRegAthlete.ValueMember = "Id";
@@ -94,7 +121,6 @@ namespace App_WinForms
                 cmbRegTrainer.DisplayMember = "FullName";
                 cmbRegTrainer.ValueMember = "Id";
 
-                // Настройка списков для бизнес-функций
                 cmbBizAthlete.DataSource = _logics.BD_Athlete?.ToList();
                 cmbBizAthlete.DisplayMember = "FullName";
                 cmbBizAthlete.ValueMember = "Id";
@@ -103,8 +129,14 @@ namespace App_WinForms
             {
             }
         }
-
-        // === ТРЕНЕРЫ ===
+        /// <summary>
+        /// Открывает модальную форму добавления/редактирования тренера и при подтверждении обновляет отображаемые
+        /// данные.
+        /// </summary>
+        /// <remarks>Форма создаётся в блоке using и автоматически освобождается. При получении
+        /// DialogResult.OK вызывается RefreshAllData().</remarks>
+        /// <param name="sender">Объект, инициировавший событие.</param>
+        /// <param name="e">Аргументы события.</param>
         private void btnAddTrainer_Click(object sender, EventArgs e)
         {
             using (var form = new FormTrainerEdit(_logics))
@@ -115,7 +147,14 @@ namespace App_WinForms
                 }
             }
         }
-
+        /// <summary>
+        /// Открывает форму редактирования выбранного тренера и обновляет отображаемые данные при успешном сохранении.
+        /// </summary>
+        /// <remarks>Если в таблице нет выбранного ряда, действие не выполняется. Получает идентификатор
+        /// тренера, проверяет его через _logics.CheckTrainer и при наличии открывает FormTrainerEdit; при
+        /// DialogResult.OK вызывает RefreshAllData(). Исключения логики отображаются через MessageBox.</remarks>
+        /// <param name="sender">Объект, инициировавший событие.</param>
+        /// <param name="e">Аргументы события клика.</param>
         private void btnEditTrainer_Click(object sender, EventArgs e)
         {
             if (dgvTrainers.CurrentRow == null) return;
@@ -140,7 +179,14 @@ namespace App_WinForms
                 MessageBox.Show($"Ошибка логики: {ex.Message}", "Уведомление", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
-
+        /// <summary>
+        /// Удаляет выбранного тренера после подтверждения пользователя и обновляет отображаемые данные.
+        /// </summary>
+        /// <remarks>Если ни одна строка не выбрана, операция прерывается. При подтверждении удаляет
+        /// тренера по идентификатору, вызывает RefreshAllData и отображает информационное сообщение при возникновении
+        /// исключения логики.</remarks>
+        /// <param name="sender">Объект, инициировавший событие.</param>
+        /// <param name="e">Аргументы события.</param>
         private void btnDeleteTrainer_Click(object sender, EventArgs e)
         {
             if (dgvTrainers.CurrentRow == null) return;
@@ -159,8 +205,13 @@ namespace App_WinForms
                 }
             }
         }
-
-        // === АТЛЕТЫ ===
+        /// <summary>
+        /// Открывает форму добавления спортсмена и обновляет отображаемые данные при подтверждении.
+        /// </summary>
+        /// <remarks>Открывает FormAthleteEdit как модальное диалоговое окно; при возврате DialogResult.OK
+        /// выполняется RefreshAllData().</remarks>
+        /// <param name="sender">Источник события, обычно кнопка, вызвавшая обработчик.</param>
+        /// <param name="e">Аргументы события.</param>
         private void btnAddAthlete_Click(object sender, EventArgs e)
         {
             using (var form = new FormAthleteEdit(_logics))
@@ -171,7 +222,15 @@ namespace App_WinForms
                 }
             }
         }
-
+        /// <summary>
+        /// Открывает модальную форму редактирования выбранного атлета и обновляет отображаемые данные при
+        /// подтверждении.
+        /// </summary>
+        /// <remarks>Если в таблице нет выделенной строки, действие не выполняется. Получение сущности
+        /// выполняется через _logics.CheckAthlete(id). Открывает FormAthleteEdit модально; при DialogResult.OK
+        /// вызывается RefreshAllData(). Исключения логики отображаются пользователю в MessageBox.</remarks>
+        /// <param name="sender">Источник события клика.</param>
+        /// <param name="e">Аргументы события клика.</param>
         private void btnEditAthlete_Click(object sender, EventArgs e)
         {
             if (dgvAthletes.CurrentRow == null) return;
@@ -196,7 +255,13 @@ namespace App_WinForms
                 MessageBox.Show($"Ошибка логики: {ex.Message}", "Уведомление", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
-
+        /// <summary>
+        /// Удаляет выбранного атлета после подтверждения пользователя и обновляет отображаемые данные.
+        /// </summary>
+        /// <remarks>Если нет выбранной строки — операция отменяется. При подтверждении вызывает слой
+        /// логики для удаления и обновляет данные; при ошибке отображает сообщение об ошибке.</remarks>
+        /// <param name="sender">Источник события клика.</param>
+        /// <param name="e">Аргументы события клика.</param>
         private void btnDeleteAthlete_Click(object sender, EventArgs e)
         {
             if (dgvAthletes.CurrentRow == null) return;
@@ -215,8 +280,15 @@ namespace App_WinForms
                 }
             }
         }
-
-        // === ЗАКРЕПЛЕНИЕ ===
+        /// <summary>
+        /// Прикрепляет выбранного атлета к выбранному тренеру, отображает результат операции и при успехе обновляет
+        /// данные интерфейса.
+        /// </summary>
+        /// <remarks>Проверяет выбор атлета и тренера и при отсутствии показывает предупреждение. Вызывает
+        /// бизнес-логику для регистрации, отображает уведомления об успехе или ошибке и при успешной регистрации
+        /// вызывает обновление данных. Перехватывает исключения и отображает сообщение об ошибке.</remarks>
+        /// <param name="sender">Объект, инициировавший событие.</param>
+        /// <param name="e">Аргументы события Click.</param>
         private void btnRegister_Click(object sender, EventArgs e)
         {
             var athlete = cmbRegAthlete.SelectedItem as Athlete;
@@ -246,8 +318,14 @@ namespace App_WinForms
                 MessageBox.Show($"Ошибка логики: {ex.Message}", "Уведомление", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
-
-        // === БИЗНЕС-ФУНКЦИИ ===
+        /// <summary>
+        /// Вычисляет персональную тренировку для выбранного спортсмена и отображает результат в txtBizResult; при
+        /// ошибке показывает уведомление.
+        /// </summary>
+        /// <remarks>Если выбранный элемент не является Athlete, метод ничего не выполняет. Исключения
+        /// перехватываются и отображаются в MessageBox.</remarks>
+        /// <param name="sender">Источник события.</param>
+        /// <param name="e">Аргументы события Click.</param>
         private void btnCalcTraining_Click(object sender, EventArgs e)
         {
             var athlete = cmbBizAthlete.SelectedItem as Athlete;
@@ -263,7 +341,13 @@ namespace App_WinForms
                 MessageBox.Show($"Ошибка логики: {ex.Message}", "Уведомление", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
-
+        /// <summary>
+        /// Фильтрует тренеров для выбранного спортсмена и обновляет dgvBizTrainers результатами поиска.
+        /// </summary>
+        /// <remarks>Если спортсмен не выбран, действие не выполняется. При ошибке бизнес‑логики
+        /// отображается MessageBox с сообщением об ошибке.</remarks>
+        /// <param name="sender">Источник события (контрол, инициировавший клик).</param>
+        /// <param name="e">Аргументы события клика.</param>
         private void btnFilterTrainers_Click(object sender, EventArgs e)
         {
             var athlete = cmbBizAthlete.SelectedItem as Athlete;
@@ -285,7 +369,14 @@ namespace App_WinForms
                 MessageBox.Show($"Ошибка логики: {ex.Message}", "Уведомление", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
-
+        /// <summary>
+        /// Отображает в dgvBizTrainers рейтинг тренеров, полученный из логики, проецируя данные в коллекцию с полями
+        /// Место, Id, ФИО, Возраст, Опыт и Атлетов.
+        /// </summary>
+        /// <remarks>В случае ошибки логики отображает MessageBox с текстом ошибки. Подсчёт числа атлетов
+        /// защищён от null с помощью null-conditional оператора.</remarks>
+        /// <param name="sender">Источник события.</param>
+        /// <param name="e">Аргументы события нажатия кнопки.</param>
         private void btnShowRating_Click(object sender, EventArgs e)
         {
             try
@@ -306,7 +397,11 @@ namespace App_WinForms
                 MessageBox.Show($"Ошибка логики: {ex.Message}", "Уведомление", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
-
+        /// <summary>
+        /// Обновляет все данные, вызывая RefreshAllData.
+        /// </summary>
+        /// <param name="sender">Источник события.</param>
+        /// <param name="e">Аргументы события.</param>
         private void btnRefresh_Click(object sender, EventArgs e)
         {
             RefreshAllData();

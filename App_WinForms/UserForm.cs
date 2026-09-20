@@ -18,7 +18,12 @@ namespace App_WinForms
             RefreshCombos();
             RefreshRating();
         }
-
+        /// <summary>
+        /// Заполняет comboGender и comboTrainingType значениями перечислений Gendre и TrainingType и устанавливает
+        /// первый элемент как выбранный при наличии элементов.
+        /// </summary>
+        /// <remarks>Получает значения перечислений через Enum.GetValues и добавляет их в коллекции Items;
+        /// если коллекции не пусты, присваивает SelectedIndex = 0.</remarks>
         private void FillEnums()
         {
             comboGender.Items.Clear();
@@ -30,7 +35,13 @@ namespace App_WinForms
             if (comboGender.Items.Count > 0) comboGender.SelectedIndex = 0;
             if (comboTrainingType.Items.Count > 0) comboTrainingType.SelectedIndex = 0;
         }
-
+        /// <summary>
+        /// Обновляет источники данных и свойства отображения нескольких ComboBox: назначает актуальные списки
+        /// спортсменов и тренеров и устанавливает DisplayMember = "FullName".
+        /// </summary>
+        /// <remarks>Сбрасывает DataSource в null перед повторным присвоением и материализует коллекции
+        /// вызовом ToList(), чтобы подгрузить актуальные данные; обновляет comboRegistrationAthlete,
+        /// comboRegistrationTrainer, comboPersonalAthlete и comboFilterAthlete.</remarks>
         private void RefreshCombos()
         {
             comboRegistrationAthlete.DataSource = null;
@@ -49,7 +60,14 @@ namespace App_WinForms
             comboFilterAthlete.DataSource = logics.BD_Athlete.ToList();
             comboFilterAthlete.DisplayMember = "FullName";
         }
-
+        /// <summary>
+        /// Обновляет dataGridRating: очищает все строки и заполняет их рейтингом тренеров, полученным из
+        /// logics.RateTrainers(), добавляя порядковый номер, идентификатор, ФИО, пол, возраст, стаж, число подопечных и
+        /// тип тренировки.
+        /// </summary>
+        /// <remarks>Должен вызываться из UI‑потока. Порядок и содержимое строк зависят от
+        /// logics.RateTrainers(). При отсутствии списка спортсменов учитывается null-safe подсчёт
+        /// (Trainer.Athlete?.Count ?? 0).</remarks>
         private void RefreshRating()
         {
             dataGridRating.Rows.Clear();
@@ -71,7 +89,16 @@ namespace App_WinForms
                 number++;
             }
         }
-
+        /// <summary>
+        /// Обрабатывает нажатие кнопки добавления атлета: проверяет непустое ФИО, парсит возраст, рост и вес, вызывает
+        /// логический слой для создания атлета, обновляет списки и очищает поля ввода, отображает результат или ошибку.
+        /// </summary>
+        /// <remarks>Выполняет валидацию: ФИО не пустое; возраст, рост и вес — целые числа. Приводит
+        /// выбранные элементы комбобоксов к перечислениям Gendre и TrainingType, вызывает logics.AddAthlete, обновляет
+        /// комбобоксы, показывает сообщение об успешном добавлении и очищает поля; при исключении отображает сообщение
+        /// с текстом ошибки.</remarks>
+        /// <param name="sender">Источник события (обычно элемент управления, инициировавший клик).</param>
+        /// <param name="e">Аргументы события клика.</param>
         private void buttonAddAthlete_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(textFullName.Text))
@@ -111,7 +138,14 @@ namespace App_WinForms
                 MessageBox.Show($"Ошибка: {ex.Message}");
             }
         }
-
+        /// <summary>
+        /// Регистрирует выбранного атлета у выбранного тренера, обновляет элементы управления и отображает сообщение о
+        /// результате.
+        /// </summary>
+        /// <remarks>Если не выбран атлет или тренер — отображает предупреждение. При успешной регистрации
+        /// обновляет комбобоксы и рейтинг; при неуспехе — показывает сообщение о возможной причине.</remarks>
+        /// <param name="sender">Источник события.</param>
+        /// <param name="e">Аргументы события.</param>
         private void buttonRegistration_Click(object sender, EventArgs e)
         {
             Athlete? athlete = comboRegistrationAthlete.SelectedItem as Athlete;
@@ -134,7 +168,15 @@ namespace App_WinForms
                 MessageBox.Show("Регистрация не выполнена. Возможно, атлет уже закреплен за этим тренером.");
             }
         }
-
+        /// <summary>
+        /// Запускает персональную тренировку для выбранного атлета, при отсутствии выбора отображает предупреждение и
+        /// выводит результат в textPersonalResult.
+        /// </summary>
+        /// <remarks>Берёт выбранного атлета из comboPersonalAthlete и вызывает logics.PersonalTraining;
+        /// результат помещается в textPersonalResult. Если атлет не выбран, показывается сообщение с просьбой выбрать
+        /// или добавить атлета.</remarks>
+        /// <param name="sender">Источник события, инициировавший клик.</param>
+        /// <param name="e">Аргументы события Click.</param>
         private void buttonPersonalTraining_Click(object sender, EventArgs e)
         {
             Athlete? athlete = comboPersonalAthlete.SelectedItem as Athlete;
@@ -147,8 +189,15 @@ namespace App_WinForms
 
             textPersonalResult.Text = logics.PersonalTraining(athlete);
         }
-
-        // РАСЧЕТ И ОТОБРАЖЕНИЕ СОВМЕСТИМОСТИ
+        /// <summary>
+        /// Фильтрует тренеров по выбранному атлету и отображает их в таблице, отсортированных по степени совпадения.
+        /// </summary>
+        /// <remarks>Если атлет не выбран, отображает сообщение и прекращает выполнение. Очищает
+        /// dataGridFilter, получает ранжированный список тренеров через logics.PersonalFilterTrainers(athlete),
+        /// вычисляет процент совпадения через logics.CalculateMatchPercentage и добавляет строки с данными тренера и
+        /// процентом в таблицу.</remarks>
+        /// <param name="sender">Объект, инициировавший событие.</param>
+        /// <param name="e">Аргументы события.</param>
         private void buttonFilter_Click(object sender, EventArgs e)
         {
             Athlete? athlete = comboFilterAthlete.SelectedItem as Athlete;
@@ -161,12 +210,10 @@ namespace App_WinForms
 
             dataGridFilter.Rows.Clear();
 
-            // Получаем список всех тренеров, отсортированных по проценту
             var rankedTrainers = logics.PersonalFilterTrainers(athlete);
 
             foreach (Trainer trainer in rankedTrainers)
             {
-                // Высчитываем процент совпадения по нашей математической формуле
                 int matchPercent = logics.CalculateMatchPercentage(trainer, athlete);
 
                 dataGridFilter.Rows.Add(
@@ -180,8 +227,16 @@ namespace App_WinForms
                     $"{matchPercent}%");
             }
         }
-
-        // ЗАПИСЬ К ТРЕНЕРУ ПРЯМО ИЗ ОКНА ПОДБОРА
+        /// <summary>
+        /// Записывает выбранного атлета к выделенному тренеру из таблицы подбора, выполняя проверки и обновляя
+        /// интерфейс.
+        /// </summary>
+        /// <remarks>Проверяет наличие выбранного атлета и выделенной строки таблицы; получает тренера по
+        /// идентификатору через логики; при успешной регистрации обновляет комбобоксы, рейтинг и таблицу подбора,
+        /// вычисляет процент совместимости и отображает сообщение об успехе; при ошибках отображает соответствующие
+        /// MessageBox.</remarks>
+        /// <param name="sender">Источник события клика (обычно кнопка).</param>
+        /// <param name="e">Аргументы события клика.</param>
         private void buttonSignUpFromFilter_Click(object sender, EventArgs e)
         {
             Athlete? athlete = comboFilterAthlete.SelectedItem as Athlete;
@@ -198,7 +253,6 @@ namespace App_WinForms
                 return;
             }
 
-            // Достаем ID выделенного в таблице тренера
             int trainerId = Convert.ToInt32(dataGridFilter.SelectedRows[0].Cells[0].Value);
             Trainer? trainer = logics.CheckTrainer(trainerId);
 
@@ -212,7 +266,7 @@ namespace App_WinForms
             {
                 RefreshCombos();
                 RefreshRating();
-                buttonFilter_Click(sender, e); // Обновляем таблицу подбора
+                buttonFilter_Click(sender, e);
 
                 int matchPercent = logics.CalculateMatchPercentage(trainer, athlete);
                 MessageBox.Show($"Поздравляем! Атлет {athlete.FullName} успешно записан к тренеру {trainer.FullName}!\nСовместимость: {matchPercent}%.", "Успешная запись", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -222,7 +276,11 @@ namespace App_WinForms
                 MessageBox.Show("Не удалось записаться. Возможно, атлет уже закреплен за этим тренером.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
-
+        /// <summary>
+        /// Обновляет отображаемый рейтинг, вызывая RefreshRating.
+        /// </summary>
+        /// <param name="sender">Объект, инициировавший событие.</param>
+        /// <param name="e">Аргументы события Click.</param>
         private void buttonRefreshRating_Click(object sender, EventArgs e)
         {
             RefreshRating();

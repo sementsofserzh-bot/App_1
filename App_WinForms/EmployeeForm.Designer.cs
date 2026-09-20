@@ -104,7 +104,6 @@ namespace App_WinForms
             tabAthletes.SuspendLayout();
             SuspendLayout();
 
-            // tabControl
             tabControl.Controls.Add(tabTrainers);
             tabControl.Controls.Add(tabAthletes);
             tabControl.Dock = DockStyle.Fill;
@@ -114,7 +113,6 @@ namespace App_WinForms
             tabControl.Size = new Size(1100, 680);
             tabControl.TabIndex = 0;
 
-            // tabTrainers
             tabTrainers.Controls.Add(dataGridTrainers);
             tabTrainers.Controls.Add(labelTrainerName);
             tabTrainers.Controls.Add(labelTrainerGender);
@@ -143,7 +141,6 @@ namespace App_WinForms
             tabTrainers.Text = "Тренеры";
             tabTrainers.UseVisualStyleBackColor = true;
 
-            // trainer labels/fields
             labelTrainerName.AutoSize = true;
             labelTrainerName.Location = new Point(12, 15);
             labelTrainerName.Text = "ФИО:";
@@ -191,7 +188,6 @@ namespace App_WinForms
             buttonDeleteTrainer.Text = "Удалить";
             buttonDeleteTrainer.Click += buttonDeleteTrainer_Click;
 
-            // trainer/athlete attach controls
             labelAttachTrainer.AutoSize = true;
             labelAttachTrainer.Location = new Point(380, 84);
             labelAttachTrainer.Text = "Тренер:";
@@ -216,7 +212,6 @@ namespace App_WinForms
             buttonDetach.Text = "-";
             buttonDetach.Click += buttonDetach_Click;
 
-            // dataGridTrainers
             dataGridTrainers.AllowUserToAddRows = false;
             dataGridTrainers.AllowUserToDeleteRows = false;
             dataGridTrainers.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
@@ -343,7 +338,6 @@ namespace App_WinForms
             dataGridAthletes.Columns.Add("TrainingType", "Тип тренировки");
             dataGridAthletes.Columns.Add("Trainer", "Тренер");
 
-            // EmployeeForm
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1100, 680);

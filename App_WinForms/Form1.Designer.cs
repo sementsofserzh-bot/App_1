@@ -34,7 +34,7 @@
         private System.Windows.Forms.TextBox txtBizResult;
         private System.Windows.Forms.DataGridView dgvBizTrainers;
         private System.Windows.Forms.Button btnRefresh;
-
+        
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))

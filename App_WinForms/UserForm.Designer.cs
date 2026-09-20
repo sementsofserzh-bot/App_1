@@ -35,7 +35,7 @@ namespace App_WinForms
         private ComboBox comboFilterAthlete;
         private Button buttonFilter;
         private DataGridView dataGridFilter;
-        private Button buttonSignUpFromFilter; // Кнопка для быстрой записи
+        private Button buttonSignUpFromFilter;
         private Button buttonRefreshRating;
         private DataGridView dataGridRating;
 

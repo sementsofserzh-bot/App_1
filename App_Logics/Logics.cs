@@ -16,6 +16,10 @@ namespace App_Model_Logics
             SeedInitialData();
         }
 
+        /// <summary>
+        /// Заполняет базу данных начальными тестовыми данными:
+        /// 5 тренеров и 8 атлетов, часть из которых закреплена за тренерами.
+        /// </summary>
         private void SeedInitialData()
         {
             var t1 = AddTrainer("Соколов Виктор Игоревич", Gendre.М, TrainingType.М_Силовая, 38, 12);
@@ -44,16 +48,18 @@ namespace App_Model_Logics
             Registration(t3, a3);
             Registration(t3, a7);
             Registration(t4, a5);
-            
+
 
         }
-        int nextTrainer_ID = 0;
-        int nextAthlete_ID = 0;
+        int nextTrainer_ID = 1;
+        int nextAthlete_ID = 1;
         //Добавление
         public Trainer AddTrainer(string fullname, Gendre gendre, TrainingType trainingType, int age, int workExperience)
         {
             if (string.IsNullOrWhiteSpace(fullname))
                 throw new ArgumentException("Имя не может быть пустым");
+            if (fullname.Any(char.IsDigit))
+                throw new ArgumentException("Имя не может содержать цифры");
             if (age < 18 || age > 120)
                 throw new ArgumentException("Некорректный возраст"); //ДЛЯ СЕРЕГИ: ВО ВЬЮХЕ ВОЗРАСТ И ОПЫТ ПРОСИ УКАЗЫВАТЬ В ГОДАХ
             if (workExperience < 0 || workExperience > age - 18)
@@ -65,6 +71,8 @@ namespace App_Model_Logics
         {
             if (string.IsNullOrWhiteSpace(fullname))
                 throw new ArgumentException("Имя не может быть пустым");
+            if (fullname.Any(char.IsDigit))
+                throw new ArgumentException("Имя не может содержать цифры");
             if (age < 14 || age > 120)
                 throw new ArgumentException("Некорректный возраст");
             if (height <= 0 || height > 300) //ДЛЯ СЕРЕГИ: ВО ВЬЮХЕ РОСТ ПРОСИ УКАЗЫВАТЬ В СМ
@@ -80,14 +88,11 @@ namespace App_Model_Logics
             var trainer = BD_Trainer.FirstOrDefault(t => t.Id == id);
             if (trainer == null) { return false; }
 
-            if (trainer.Athlete != null)
+            foreach (var athlete in trainer.Athlete.ToList())
             {
-                foreach (var athlete in trainer.Athlete.ToList())
-                {
-                    athlete.trainer = null;
-                }
-                trainer.Athlete.Clear();
+                athlete.trainer = null;
             }
+            trainer.Athlete.Clear();
 
             foreach (var athlete in BD_Athlete)
             {
@@ -134,9 +139,21 @@ namespace App_Model_Logics
             var chosen_trainer = BD_Trainer.FirstOrDefault(t => t.Id == id);
             if (chosen_trainer == null) { return null; }
 
-            // Обновляем только то, что пришло (не null)
+            int finalAge = age ?? chosen_trainer.Age;
+            int finalExp = workExperience ?? chosen_trainer.WorkExperience;
+
+            if (finalAge < 18 || finalAge > 120)
+                throw new ArgumentException("Некорректный возраст");
+
+            if (finalExp < 0 || finalExp > finalAge - 18)
+                throw new ArgumentException("Некорректный опыт работы");
+
             if (fullname != null)
+            {
+                if (string.IsNullOrWhiteSpace(fullname) || fullname.Any(char.IsDigit))
+                    throw new ArgumentException("Некорректное ФИО");
                 chosen_trainer.FullName = fullname;
+            }
 
             if (gendre.HasValue)
                 chosen_trainer.Gendre = gendre.Value;
@@ -210,9 +227,25 @@ namespace App_Model_Logics
             if (chosen_athlete == null)
                 return null;
 
-            // Обновляем простые поля — только если пришли
+            int finalAge = age ?? chosen_athlete.Age;
+            int finalHeight = height ?? chosen_athlete.Height;
+            int finalWeight = weight ?? chosen_athlete.Weight;
+
+            if (finalAge < 14 || finalAge > 120)
+                throw new ArgumentException("Некорректный возраст");
+
+            if (finalHeight <= 0 || finalHeight > 300)
+                throw new ArgumentException("Некорректный рост");
+
+            if (finalWeight <= 0 || finalWeight > 1000)
+                throw new ArgumentException("Некорректный вес");
+
             if (fullname != null)
+            {
+                if (string.IsNullOrWhiteSpace(fullname) || fullname.Any(char.IsDigit))
+                    throw new ArgumentException("Некорректное ФИО");
                 chosen_athlete.FullName = fullname;
+            }
 
             if (gendre.HasValue)
                 chosen_athlete.Gendre = gendre.Value;
@@ -229,7 +262,7 @@ namespace App_Model_Logics
             if (weight.HasValue)
                 chosen_athlete.Weight = weight.Value;
 
-            // Работа с тренером — только если пришёл
+            // Работа с тренером 
             if (trainer != null)
             {
                 // Если у атлета уже был другой тренер — открепляем
@@ -253,7 +286,7 @@ namespace App_Model_Logics
 
         public bool Registration(Trainer trainer, Athlete athlete)
         {
-            
+
             if (athlete == null || trainer == null)
             {
                 return false;
@@ -262,7 +295,7 @@ namespace App_Model_Logics
             {
                 return false;
             }
-            if (athlete.trainer != null )
+            if (athlete.trainer != null)
             {
                 var OldTrainer = BD_Trainer.FirstOrDefault(o => o.Id == athlete.trainer.Id);
                 if (OldTrainer != null)
@@ -273,9 +306,9 @@ namespace App_Model_Logics
             }
             athlete.trainer = trainer;
             if (!trainer.Athlete.Any(a => a.Id == athlete.Id))
-             {
+            {
                 trainer.Athlete.Add(athlete);
-                
+
             }
             return true;
 
@@ -356,7 +389,7 @@ namespace App_Model_Logics
             // Сохраняем рекомендованное направление для корректного поиска тренеров в PersonalFilterTrainers
             athlete.TypePersonalTraining = recommendedType;
 
-            // Формируем красивый итоговый отчет для многострочного TextBox
+            
             return $"=== ИНДИВИДУАЛЬНЫЙ РАСЧЕТ ПРОГРАММЫ ===" + Environment.NewLine +
                    $"Атлет: {athlete.FullName} ({athlete.Gendre})" + Environment.NewLine +
                    $"Параметры: Возраст — {athlete.Age} лет | Рост — {athlete.Height} см | Вес — {athlete.Weight} кг" + Environment.NewLine +
@@ -394,14 +427,22 @@ namespace App_Model_Logics
             {
                 return new List<Trainer>();
             }
-            
+
             foreach (var t in BD_Trainer)
             {
                 t.Rating = CalculateRating(t);
             }
             return BD_Trainer.OrderByDescending(t => t.Rating).ToList();
-            
+
         }
+        /// <summary>
+        /// Вычисляет рейтинг тренера на основе опыта работы,
+        /// количества закреплённых атлетов и возраста.
+        /// Чем больше опыт и атлетов — тем выше рейтинг;
+        /// чем старше тренер — тем ниже.
+        /// </summary>
+        /// <param name="trainer">Тренер, для которого считается рейтинг.</param>
+        /// <returns>Числовое значение рейтинга.</returns>
         public double CalculateRating(Trainer trainer)
         {
             if (trainer == null) { return 0; }
@@ -446,7 +487,3 @@ namespace App_Model_Logics
         }
     }
 }
-
-
-
-        

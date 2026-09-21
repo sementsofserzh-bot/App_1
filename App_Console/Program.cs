@@ -343,6 +343,10 @@ namespace App_Console
                         ClearScreen();
 
                         Console.WriteLine("=== УДАЛЕНИЕ ТРЕНЕРА ===");
+                        foreach(var trainer_view in logics.BD_Trainer)
+                        {
+                            ViewEssence(trainer_view);
+                        }
                         Console.WriteLine("Введите ID тренера для удаления:");
 
                         int deliteTrainerId = ReadInt("");
@@ -364,6 +368,10 @@ namespace App_Console
                         ClearScreen();
 
                         Console.WriteLine("=== УДАЛЕНИЕ АТЛЕТА ===");
+                        foreach (var athlete_view in logics.BD_Athlete)
+                        {
+                            ViewEssence(athlete_view);
+                        }
                         Console.WriteLine("Введите ID атлета для удаления:");
 
                         int deleteAthleteId = ReadInt("");
@@ -473,6 +481,10 @@ namespace App_Console
                         ClearScreen();
 
                         Console.WriteLine("=== ИЗМЕНЕНИЕ ТРЕНЕРА ===");
+                        foreach(var trainer_view in logics.BD_Trainer)
+                        {
+                            ViewEssence(trainer_view);
+                        }
                         Console.WriteLine("Введите ID тренера для изменения:");
 
                         int changeTrainerId = ReadInt("");
@@ -712,6 +724,10 @@ namespace App_Console
                         ClearScreen();
 
                         Console.WriteLine("=== ИЗМЕНЕНИЕ АТЛЕТА ===");
+                        foreach (var athlete_view in logics.BD_Athlete)
+                        {
+                            ViewEssence(athlete_view);
+                        }
                         Console.WriteLine("Введите ID атлета для изменения:");
 
                         int changeAthleteId = ReadInt("");
@@ -916,7 +932,10 @@ namespace App_Console
                         ClearScreen();
 
                         Console.WriteLine("=== РЕГИСТРАЦИЯ АТЛЕТА ЗА ТРЕНЕРОМ ===");
-
+                        foreach(var athlete_view in logics.BD_Athlete)
+                        {
+                            ViewEssence(athlete_view);
+                        })
                         Console.WriteLine("Введите ID атлета:");
                         int registrationAthleteId = ReadInt("");
 
@@ -927,7 +946,12 @@ namespace App_Console
                             Console.WriteLine("Атлет не найден!");
                             break;
                         }
+                        Console.Clear();
 
+                        foreach (var trainer_view in logics.BD_Trainer)
+                        {
+                            ViewEssence(trainer_view);
+                        }
                         Console.WriteLine("Введите ID тренера:");
                         int registrationTrainerId = ReadInt("");
 

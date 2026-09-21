@@ -343,7 +343,7 @@ namespace App_Console
                         ClearScreen();
 
                         Console.WriteLine("=== УДАЛЕНИЕ ТРЕНЕРА ===");
-                        foreach(var trainer_view in logics.BD_Trainer)
+                        foreach (var trainer_view in logics.BD_Trainer)
                         {
                             ViewEssence(trainer_view);
                         }
@@ -481,7 +481,7 @@ namespace App_Console
                         ClearScreen();
 
                         Console.WriteLine("=== ИЗМЕНЕНИЕ ТРЕНЕРА ===");
-                        foreach(var trainer_view in logics.BD_Trainer)
+                        foreach (var trainer_view in logics.BD_Trainer)
                         {
                             ViewEssence(trainer_view);
                         }
@@ -932,10 +932,10 @@ namespace App_Console
                         ClearScreen();
 
                         Console.WriteLine("=== РЕГИСТРАЦИЯ АТЛЕТА ЗА ТРЕНЕРОМ ===");
-                        foreach(var athlete_view in logics.BD_Athlete)
+                        foreach (var athlete_view in logics.BD_Athlete)
                         {
                             ViewEssence(athlete_view);
-                        })
+                        } 
                         Console.WriteLine("Введите ID атлета:");
                         int registrationAthleteId = ReadInt("");
 

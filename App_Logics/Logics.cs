@@ -22,20 +22,20 @@ namespace App_Model_Logics
         /// </summary>
         private void SeedInitialData()
         {
-            var t1 = AddTrainer("Соколов Виктор Игоревич", Gendre.М, TrainingType.М_Силовая, 38, 12);
-            var t2 = AddTrainer("Морозова Анна Сергеевна", Gendre.Ж, TrainingType.Ж_Выносливость, 29, 6);
-            var t3 = AddTrainer("Кузнецов Дмитрий Анатольевич", Gendre.М, TrainingType.М_Гибкость, 45, 18);
+            var t1 = AddTrainer("Жежбекович Кайран Альбертович", Gendre.М, TrainingType.М_Силовая, 38, 12);
+            var t2 = AddTrainer("Галькова Галина Семёновна", Gendre.Ж, TrainingType.Ж_Выносливость, 29, 6);
+            var t3 = AddTrainer("Степанова Виктория Олеговна", Gendre.М, TrainingType.М_Гибкость, 45, 18);
             var t4 = AddTrainer("Трифонова Алена Александровна", Gendre.Ж, TrainingType.Ж_Гибкость, 40, 18);
             var t5 = AddTrainer("Семенцов Сергей Витальевич", Gendre.М, TrainingType.Ж_Гибкость, 50, 20);
 
 
-            var a1 = AddAthlete("Волков Артём Денисович", Gendre.М, TrainingType.М_Силовая, 16, 185, 63);
+            var a1 = AddAthlete("Корецкий Глеб Александрович", Gendre.М, TrainingType.М_Силовая, 16, 185, 63);
             var a2 = AddAthlete("Зайцева Алина Максимовна", Gendre.Ж, TrainingType.Ж_Силовая, 20, 165, 55);
-            var a3 = AddAthlete("Смирнов Михаил Александрович", Gendre.М, TrainingType.М_Гибкость, 32, 178, 95);
+            var a3 = AddAthlete("Смаев Геннадий Викторович", Gendre.М, TrainingType.М_Гибкость, 32, 178, 95);
             var a4 = AddAthlete("Павлова Екатерина Дмитриевна", Gendre.Ж, TrainingType.Ж_Выносливость, 24, 170, 58);
             var a5 = AddAthlete("Федоров Егор Романович", Gendre.М, TrainingType.М_Выносливость, 15, 172, 60);
-            var a6 = AddAthlete("Романова Мария Владимировна", Gendre.Ж, TrainingType.Ж_Гибкость, 42, 162, 68);
-            var a7 = AddAthlete("Попов Никита Васильевич", Gendre.М, TrainingType.М_Гибкость, 55, 180, 85);
+            var a6 = AddAthlete("Сир Люлю Кебаб", Gendre.Ж, TrainingType.Ж_Гибкость, 42, 162, 68);
+            var a7 = AddAthlete("Ремнев Павел Павлович", Gendre.М, TrainingType.М_Гибкость, 55, 180, 85);
             var a8 = AddAthlete("Козлова София Евгеньевна", Gendre.Ж, TrainingType.Ж_Выносливость, 22, 168, 54);
 
             Registration(t1, a1);
@@ -88,10 +88,7 @@ namespace App_Model_Logics
             var trainer = BD_Trainer.FirstOrDefault(t => t.Id == id);
             if (trainer == null) { return false; }
 
-            foreach (var athlete in trainer.Athlete.ToList())
-            {
-                athlete.trainer = null;
-            }
+             
             trainer.Athlete.Clear();
 
             foreach (var athlete in BD_Athlete)

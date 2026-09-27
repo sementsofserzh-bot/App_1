@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Элементы решения/">
+    <File Path=".gitignore" />
+  </Folder>
   <Project Path="App_Console/App_Console.csproj" />
   <Project Path="App_Logics/App_Model.csproj" />
   <Project Path="App_WinForms/App_WinForms.csproj" />

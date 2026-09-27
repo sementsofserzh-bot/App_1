@@ -141,6 +141,7 @@ namespace App_Console
         /// </summary>
         static void Main()
         {
+            DatabaseInitializer.Initialize();
             Console.OutputEncoding = System.Text.Encoding.UTF8;
 
             Logics logics = new Logics();

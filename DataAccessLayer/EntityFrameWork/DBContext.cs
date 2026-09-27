@@ -1,10 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace DataAccessLayer
+﻿using Microsoft.EntityFrameworkCore;
+using App_Model;
+using DataAccessLayer;
+public class DBContext : DbContext
 {
-    internal class DBContext
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
+        base.OnConfiguring(optionsBuilder);
+        optionsBuilder.UseSqlite(DatabaseInitializer.ConnectionString);
     }
+    public DbSet<Athlete> Athletes { get; set; }
+    public DbSet<Trainer> Trainers { get; set; }
 }

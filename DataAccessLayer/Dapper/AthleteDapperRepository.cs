@@ -4,7 +4,7 @@ using System.Text;
 
 namespace DataAccessLayer
 {
-    internal class AthleteDapperRepository
+    public class AthleteDapperRepository
     {
 
     }

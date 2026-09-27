@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using App_Model_Essence;
 
-namespace App_Model_TestLogics
+namespace App_Model
 {
     /// <summary>
     /// Интерфейс бизнес-логики трен-го зала.

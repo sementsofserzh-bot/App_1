@@ -1,8 +1,7 @@
 using System;
 using System.Linq;
 using System.Windows.Forms;
-using App_Model_Essence;
-using App_Model_TestLogics;
+using App_Model;
 
 namespace App_WinForms
 {

@@ -1,16 +1,18 @@
-﻿namespace App_Model_Essence
+﻿namespace App_Model
 {
     public enum Gendre { М, Ж }
 
     public enum TrainingType { Ж_Силовая, М_Силовая, Ж_Выносливость, М_Выносливость, Ж_Гибкость, М_Гибкость }
 
+    
 
     /// <summary>
     /// Представляет атлета/посетителя.
     /// Содержит личные данные, физические параметры и ссылку на тренера.
     /// </summary>
-    public class Athlete
+    public class Athlete : IDomainObject
     {
+
         public int Id { get; set; }
 
         public string FullName { get; set; }
@@ -33,7 +35,7 @@
     /// Представляет спортивного тренера.
     /// Содержит личные данные, специализацию и список закреплённых атлетов.
     /// </summary>
-    public class Trainer
+    public class Trainer : IDomainObject
     {
         public int Id { get; set; }
 

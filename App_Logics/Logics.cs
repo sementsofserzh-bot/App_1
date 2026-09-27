@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using App_Model_Essence;
-using App_Model_TestLogics;
-namespace App_Model_Logics
+namespace App_Model
 {
 
     public class Logics : ILogics
@@ -51,9 +49,9 @@ namespace App_Model_Logics
 
 
         }
-        int nextTrainer_ID = 1;
-        int nextAthlete_ID = 1;
-        //Добавление
+        int nextTrainer_ID = 1; //будет убрано тк бд шотает проблему
+        int nextAthlete_ID = 1; //будет убрано тк бд шотает проблему
+        //Добавление (будет переделан метод присваивания ID из за бд)
         public Trainer AddTrainer(string fullname, Gendre gendre, TrainingType trainingType, int age, int workExperience)
         {
             if (string.IsNullOrWhiteSpace(fullname))
@@ -61,12 +59,13 @@ namespace App_Model_Logics
             if (fullname.Any(char.IsDigit))
                 throw new ArgumentException("Имя не может содержать цифры");
             if (age < 18 || age > 120)
-                throw new ArgumentException("Некорректный возраст"); //ДЛЯ СЕРЕГИ: ВО ВЬЮХЕ ВОЗРАСТ И ОПЫТ ПРОСИ УКАЗЫВАТЬ В ГОДАХ
+                throw new ArgumentException("Некорректный возраст");
             if (workExperience < 0 || workExperience > age - 18)
                 throw new ArgumentException("Некорректный опыт работы");
             BD_Trainer.Add(new Trainer { Id = nextTrainer_ID++, FullName = fullname, Gendre = gendre, TrainingType = trainingType, Age = age, WorkExperience = workExperience });
             return BD_Trainer[BD_Trainer.Count - 1];
         }
+        //Добавление (будет переделан метод присваивания ID из за бд)
         public Athlete AddAthlete(string fullname, Gendre gendre, TrainingType trainingType, int age, int height, int weight)
         {
             if (string.IsNullOrWhiteSpace(fullname))
@@ -75,9 +74,9 @@ namespace App_Model_Logics
                 throw new ArgumentException("Имя не может содержать цифры");
             if (age < 14 || age > 120)
                 throw new ArgumentException("Некорректный возраст");
-            if (height <= 0 || height > 300) //ДЛЯ СЕРЕГИ: ВО ВЬЮХЕ РОСТ ПРОСИ УКАЗЫВАТЬ В СМ
+            if (height <= 0 || height > 300) 
                 throw new ArgumentException("Некорректный рост");
-            if (weight <= 0 || weight > 1000) //ДЛЯ СЕРЕГИ:ВО ВЬЮХЕ ВЕС ПРОСИ УКАЗЫВАТЬ В КГ
+            if (weight <= 0 || weight > 1000)
                 throw new ArgumentException("Некорректный вес");
             BD_Athlete.Add(new Athlete { Id = nextAthlete_ID++, FullName = fullname, Gendre = gendre, TrainingType = trainingType, Age = age, Height = height, Weight = weight });
             return BD_Athlete[BD_Athlete.Count - 1];

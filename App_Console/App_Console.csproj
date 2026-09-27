@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\App_Logics\App_Model.csproj" />
+    <ProjectReference Include="..\DataAccessLayer\DataAccessLayer.csproj" />
   </ItemGroup>
 
   <ItemGroup>

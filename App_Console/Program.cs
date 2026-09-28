@@ -144,7 +144,9 @@ namespace App_Console
             DatabaseInitializer.Initialize();
             Console.OutputEncoding = System.Text.Encoding.UTF8;
 
-            Logics logics = new Logics();
+            Logics logics = new Logics(
+    new EntityRepository<Trainer>(),
+    new EntityRepository<Athlete>());
             int password = 1234;
 
             while (true)

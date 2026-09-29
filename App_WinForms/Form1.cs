@@ -5,6 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Windows.Forms;
 using App_Model;
+using DataAccessLayer;
 
 namespace App_WinForms
 {
@@ -19,7 +20,14 @@ namespace App_WinForms
         public Form1()
         {
             InitializeComponent();
-            _logics = new Logics();
+            //_logics = new Logics(
+            //    new TrainerDapperRepository(),
+            //    new AthleteDapperRepository()
+            //);
+            _logics = new Logics(
+                new EntityRepository<Trainer>(),
+                new EntityRepository<Athlete>()
+                );
         }
         /// <summary>
         /// Инициализация при загрузке формы; обновляет все данные вызовом RefreshAllData.

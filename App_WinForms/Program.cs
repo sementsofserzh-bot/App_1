@@ -1,6 +1,7 @@
 using System;
 using System.Windows.Forms;
 using App_Model;
+using DataAccessLayer;
 
 namespace App_WinForms
 {
@@ -11,7 +12,14 @@ namespace App_WinForms
         {
             ApplicationConfiguration.Initialize();
 
-            Logics logics = new Logics();
+            //Logics logics = new Logics(
+            //    new TrainerDapperRepository(),
+            //    new AthleteDapperRepository()
+            //    );
+            Logics logics = new Logics(
+                new EntityRepository<Trainer>(),
+                new EntityRepository<Athlete>()
+                );
 
             Application.Run(new MainForm(logics));
         }

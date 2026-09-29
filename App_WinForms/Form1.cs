@@ -13,21 +13,14 @@ namespace App_WinForms
     {
         private readonly ILogics _logics;
         /// <summary>
-        /// Создаёт экземпляр Form1, инициализирует компоненты формы и создаёт экземпляр Logics.
+        /// Инициализирует новый экземпляр Form1 и сохраняет переданный ILogics.
         /// </summary>
-        /// <remarks>Вызов InitializeComponent настраивает элементы интерфейса; затем поле _logics
-        /// инициализируется новым объектом Logics.</remarks>
-        public Form1()
+        /// <param name="logics">Реализация ILogics, используемая формой для выполнения логики приложения.</param>
+        /// <exception cref="ArgumentNullException">Если <paramref name="logics"/> равен null.</exception>
+        public Form1(ILogics logics)
         {
             InitializeComponent();
-            //_logics = new Logics(
-            //    new TrainerDapperRepository(),
-            //    new AthleteDapperRepository()
-            //);
-            _logics = new Logics(
-                new EntityRepository<Trainer>(),
-                new EntityRepository<Athlete>()
-                );
+            _logics = logics ?? throw new ArgumentNullException(nameof(logics));
         }
         /// <summary>
         /// Инициализация при загрузке формы; обновляет все данные вызовом RefreshAllData.

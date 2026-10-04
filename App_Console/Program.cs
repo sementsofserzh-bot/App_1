@@ -134,6 +134,28 @@ namespace App_Console
                 Console.WriteLine($"Ошибка: введите число от 1 до {values.Length}.");
             }
         }
+
+        static TrainingType ReadAthleteTrainingType(Gendre gender)
+        {
+            var trainingTypes = Enum.GetValues<TrainingType>()
+                .Where(trainingType => trainingType.ToString().StartsWith($"{gender}_", StringComparison.Ordinal))
+                .ToArray();
+
+            Console.WriteLine("Выберите тип тренировки:");
+            for (int i = 0; i < trainingTypes.Length; i++)
+            {
+                Console.WriteLine($"{i + 1}. {trainingTypes[i]}");
+            }
+
+            while (true)
+            {
+                int choice = ReadInt("Сделайте выбор: ");
+                if (choice >= 1 && choice <= trainingTypes.Length)
+                    return trainingTypes[choice - 1];
+
+                Console.WriteLine($"Ошибка: введите число от 1 до {trainingTypes.Length}.");
+            }
+        }
         /// <summary>
         /// Точка входа в приложение. Инициализирует бизнес-логику,
         /// настраивает кодировку вывода и запускает главное меню
@@ -311,14 +333,7 @@ namespace App_Console
                         Gendre gender_athlete = ReadEnum<Gendre>("Сделайте выбор: ");
 
                         ClearScreen();
-                        Console.WriteLine("Введите тип тренировки:");
-
-                        foreach (var trainingtype_athlete in Enum.GetValues(typeof(TrainingType)))
-                        {
-                            Console.WriteLine($"{(int)trainingtype_athlete + 1}. {trainingtype_athlete}");
-                        }
-
-                        TrainingType trainingType_athlete = ReadEnum<TrainingType>("Сделайте выбор: ");
+                        TrainingType trainingType_athlete = ReadAthleteTrainingType(gender_athlete);
 
                         ClearScreen();
                         Console.WriteLine("Введите возраст в годах:");
@@ -1035,14 +1050,7 @@ namespace App_Console
                         Gendre gender = ReadEnum<Gendre>("Сделайте выбор: ");
 
                         ClearScreen();
-                        Console.WriteLine("Выберите тип тренировки:");
-
-                        foreach (var trainingType in Enum.GetValues(typeof(TrainingType)))
-                        {
-                            Console.WriteLine($"{(int)trainingType + 1}. {trainingType}");
-                        }
-
-                        TrainingType type = ReadEnum<TrainingType>("Сделайте выбор: ");
+                        TrainingType type = ReadAthleteTrainingType(gender);
 
                         ClearScreen();
                         Console.WriteLine("Введите возраст:");

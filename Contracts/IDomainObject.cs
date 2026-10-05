@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace App_Model
+namespace Contracts
 {
     /// <summary>
     /// Определяет базовый интерфейс для доменных объектов.

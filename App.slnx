@@ -5,5 +5,6 @@
   <Project Path="App_Console/App_Console.csproj" />
   <Project Path="App_Logics/App_Model.csproj" />
   <Project Path="App_WinForms/App_WinForms.csproj" />
+  <Project Path="Contracts/Contracts.csproj" Id="99ec8f91-9068-45d3-b388-697236ca9422" />
   <Project Path="DataAccessLayer/DataAccessLayer.csproj" Id="ae336bd8-cc15-4577-b0bc-388854b86529" />
 </Solution>

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace App_Model
+namespace Contracts
 {
     /// <summary>
     /// Определяет общий интерфейс репозитория для работы с сущностями.

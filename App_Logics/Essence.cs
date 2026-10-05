@@ -1,4 +1,5 @@
-﻿namespace App_Model
+﻿using Contracts;
+namespace App_Model
 {
     public enum Gendre { М, Ж }
 

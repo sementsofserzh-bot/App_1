@@ -2,7 +2,7 @@ using System;
 using System.Windows.Forms;
 using App_Model;
 using DataAccessLayer;
-using 
+using Contracts;
 
 namespace App_WinForms
 {

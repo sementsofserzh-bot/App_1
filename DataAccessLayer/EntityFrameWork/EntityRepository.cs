@@ -1,5 +1,6 @@
 ﻿using App_Model;
 using Microsoft.EntityFrameworkCore;
+using Contracts;
 
 namespace DataAccessLayer
 {

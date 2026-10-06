@@ -1,5 +1,6 @@
 ﻿using App_Model;
 using DataAccessLayer;
+using Contracts;
 
 namespace App_Console
 {
@@ -11,6 +12,9 @@ namespace App_Console
     /// </summary>
     class Program
     {
+        /// <summary>
+        /// 
+        /// </summary>
         static readonly Dictionary<string, string> PropertyNames = new()
         {
             { "Id", "ID" },
@@ -166,14 +170,11 @@ namespace App_Console
             DatabaseInitializer.Initialize();
             Console.OutputEncoding = System.Text.Encoding.UTF8;
 
-            Logics logics = new Logics(
-               new EntityRepository<Trainer>(),
-               new EntityRepository<Athlete>()
-               );
-            //Logics logics = new Logics(
-            //    new TrainerDapperRepository(),
-            //    new AthleteDapperRepository()
-            //    );
+            
+            using IUnitOfWork unitOfWork = new UnitOfWork();
+            ILogics logics = new Logics(unitOfWork);
+
+
             int password = 1234;
 
             while (true)

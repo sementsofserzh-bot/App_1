@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Contracts;
+using DataAccessLayer;
 
 namespace App_Model
 {
@@ -12,43 +13,31 @@ namespace App_Model
     /// </summary>
     public class Logics : ILogics
     {
-        private readonly IRepository<Trainer> trainerRepository;
-        private readonly IRepository<Athlete> athleteRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
         /// <summary>
-        /// Возвращает всех тренеров из репозитория.
-        /// Оставлено для совместимости с существующим UI.
+        /// Инициализирует новый экземпляр Logics с указанной единицей работы.
         /// </summary>
-        public List<Trainer> BD_Trainer
+        /// <param name="unitOfWork">Единица работы для доступа к репозиториям и управлению транзакциями.</param>
+        /// <exception cref="ArgumentNullException">Если unitOfWork равен null.</exception>
+        public Logics(IUnitOfWork unitOfWork)
         {
-            get => trainerRepository.List().ToList();
-        }
+            _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 
-        /// <summary>
-        /// Возвращает всех атлетов из репозитория.
-        /// Оставлено для совместимости с существующим UI.
-        /// </summary>
-        public List<Athlete> BD_Athlete
-        {
-            get => athleteRepository.List().ToList();
-        }
-
-        /// <summary>
-        /// Создаёт объект бизнес-логики с переданными репозиториями.
-        /// </summary>
-        public Logics(
-            IRepository<Trainer> trainerRepository,
-            IRepository<Athlete> athleteRepository)
-        {
-            this.trainerRepository = trainerRepository;
-            this.athleteRepository = athleteRepository;
-
-            if (!trainerRepository.List().Any() &&
-                !athleteRepository.List().Any())
+            if (!_unitOfWork.Trainers.List().Any() && !_unitOfWork.Athletes.List().Any())
             {
                 SeedInitialData();
             }
         }
+
+        /// <summary>
+        /// Список тренеров, загруженный из репозитория через _unitOfWork.
+        /// </summary>
+        /// <remarks>Список материализуется вызовом ToList(), поэтому последующие изменения репозитория не
+        /// повлияют на возвращённый список.</remarks>
+        public List<Trainer> BD_Trainer => _unitOfWork.Trainers.List().ToList();
+        public List<Athlete> BD_Athlete => _unitOfWork.Athletes.List().ToList();
+
 
         /// <summary>
         /// Заполняет пустую базу начальными данными.
@@ -166,7 +155,18 @@ namespace App_Model
 
             Registration(t4, a5);
         }
-
+        /// <summary>
+        /// Создаёт и сохраняет тренера с указанными данными.
+        /// </summary>
+        /// <remarks>Тренер добавляется в репозиторий через _unitOfWork и изменения сохраняются.</remarks>
+        /// <param name="fullname">Полное имя тренера; не может быть пустым или содержать цифры.</param>
+        /// <param name="gendre">Пол тренера; значение перечисления Gendre.</param>
+        /// <param name="trainingType">Тип проводимых тренировок; значение перечисления TrainingType.</param>
+        /// <param name="age">Возраст в годах; допустимый диапазон от 18 до 120.</param>
+        /// <param name="workExperience">Стаж работы в годах; неотрицательный и не превышает возраст минус 18.</param>
+        /// <returns>Добавленный и сохранённый объект Trainer.</returns>
+        /// <exception cref="ArgumentException">Если fullname пустой или содержит цифры; если age вне диапазона 18–120; если workExperience отрицателен или
+        /// превышает age − 18.</exception>
         public Trainer AddTrainer(
             string fullname,
             Gendre gendre,
@@ -195,11 +195,24 @@ namespace App_Model
                 WorkExperience = workExperience
             };
 
-            trainerRepository.Add(trainer);
+            _unitOfWork.Trainers.Add(trainer);
+            _unitOfWork.Save();
 
             return trainer;
         }
-
+        /// <summary>
+        /// Создаёт и сохраняет нового спортсмена с указанными данными.
+        /// </summary>
+        /// <remarks>Добавляет спортсмена в репозиторий и сохраняет изменения через _unitOfWork.</remarks>
+        /// <param name="fullname">Полное имя спортсмена; не должно быть пустым и не может содержать цифры.</param>
+        /// <param name="gendre">Пол спортсмена.</param>
+        /// <param name="trainingType">Тип тренировки спортсмена.</param>
+        /// <param name="age">Возраст в годах; допустимый диапазон: 14–120.</param>
+        /// <param name="height">Рост в сантиметрах; должен быть больше 0 и не превышать 300.</param>
+        /// <param name="weight">Вес в килограммах; должен быть больше 0 и не превышать 1000.</param>
+        /// <returns>Созданный и сохранённый объект Athlete.</returns>
+        /// <exception cref="ArgumentException">Если fullname пустой или содержит цифры; либо age вне диапазона 14–120; либо height ≤ 0 или > 300; либо
+        /// weight ≤ 0 или > 1000.</exception>
         public Athlete AddAthlete(
             string fullname,
             Gendre gendre,
@@ -233,19 +246,26 @@ namespace App_Model
                 Weight = weight
             };
 
-            athleteRepository.Add(athlete);
+            _unitOfWork.Athletes.Add(athlete);
+            _unitOfWork.Save();
 
             return athlete;
         }
-
+        /// <summary>
+        /// Удаляет тренера по идентификатору и очищает ссылки на него у связанных спортсменов.
+        /// </summary>
+        /// <remarks>У связанных сущностей Athlete поле trainer устанавливается в null, изменения
+        /// обновляются и сохраняются через слой UnitOfWork.</remarks>
+        /// <param name="id">Идентификатор удаляемого тренера.</param>
+        /// <returns>true, если тренер найден и удалён; false, если тренер не найден.</returns>
         public bool? RemoveTrainer(int id)
         {
-            Trainer? trainer = trainerRepository.ReadById(id);
+            Trainer? trainer = _unitOfWork.Trainers.ReadById(id);
 
             if (trainer == null)
                 return false;
 
-            List<Athlete> athletes = athleteRepository
+            List<Athlete> athletes = _unitOfWork.Athletes
                 .List()
                 .Where(a =>
                     a.trainer != null &&
@@ -255,36 +275,64 @@ namespace App_Model
             foreach (Athlete athlete in athletes)
             {
                 athlete.trainer = null;
-                athleteRepository.Update(athlete);
+                _unitOfWork.Athletes.Update(athlete);
             }
 
-            trainerRepository.Delete(id);
+            _unitOfWork.Trainers.Delete(id);
+            _unitOfWork.Save();
 
             return true;
         }
-
+        /// <summary>
+        /// Удаляет спортсмена с указанным идентификатором из хранилища.
+        /// </summary>
+        /// <param name="id">Идентификатор спортсмена.</param>
+        /// <returns>true при успешном удалении; false, если спортсмен с указанным идентификатором не найден.</returns>
         public bool? RemoveAthlete(int id)
         {
-            Athlete? athlete = athleteRepository.ReadById(id);
+            Athlete? athlete = _unitOfWork.Athletes.ReadById(id);
 
             if (athlete == null)
                 return false;
 
-            athleteRepository.Delete(id);
+            _unitOfWork.Athletes.Delete(id);
+            _unitOfWork.Save();
 
             return true;
         }
-
+        /// <summary>
+        /// Возвращает тренера с указанным идентификатором.
+        /// </summary>
+        /// <param name="id">Идентификатор тренера для поиска.</param>
+        /// <returns>Тренер с указанным идентификатором или null, если тренер не найден.</returns>
         public Trainer? CheckTrainer(int id)
         {
-            return trainerRepository.ReadById(id);
+            return _unitOfWork.Trainers.ReadById(id);
         }
-
+        /// <summary>
+        /// Возвращает спортсмена с указанным идентификатором или null, если не найден.
+        /// </summary>
+        /// <param name="id">Идентификатор спортсмена.</param>
+        /// <returns>Объект Athlete с указанным идентификатором или null, если запись не найдена.</returns>
         public Athlete? CheckAthlete(int id)
         {
-            return athleteRepository.ReadById(id);
+            return _unitOfWork.Athletes.ReadById(id);
         }
-
+        /// <summary>
+        /// Обновляет свойства тренера и управляет привязкой атлетов.
+        /// </summary>
+        /// <remarks>Вносит изменения в репозиторий через _unitOfWork: обновляет поля тренера, открепляет
+        /// и закрепляет атлетов, затем сохраняет изменения.</remarks>
+        /// <param name="id">Идентификатор тренера.</param>
+        /// <param name="fullname">Новое полное имя тренера; null — не изменять. Не должно быть пустым или содержать цифры.</param>
+        /// <param name="gendre">Пол тренера; null — не изменять.</param>
+        /// <param name="trainingType">Тип тренировки тренера; null — не изменять.</param>
+        /// <param name="age">Возраст тренера в годах; null — не изменять. Допустимый диапазон 18–120.</param>
+        /// <param name="workExperience">Стаж работы в годах; null — не изменять. Должен быть неотрицательным и не превышать возраст минус 18.</param>
+        /// <param name="deleteathlete">Список атлетов для открепления от тренера; null — пропустить открепление.</param>
+        /// <param name="addathlete">Список атлетов для закрепления за тренером; null — пропустить добавление.</param>
+        /// <returns>Обновлённый объект Trainer либо null, если тренер с указанным id не найден.</returns>
+        /// <exception cref="ArgumentException">Возникает при некорректном возрасте, некорректном стаже работы или некорректном формате ФИО.</exception>
         public Trainer? UpdateInfoTrainer(
             int id,
             string? fullname,
@@ -296,7 +344,7 @@ namespace App_Model
             List<Athlete>? addathlete)
         {
             Trainer? chosenTrainer =
-                trainerRepository.ReadById(id);
+                _unitOfWork.Trainers.ReadById(id);
 
             if (chosenTrainer == null)
                 return null;
@@ -345,7 +393,7 @@ namespace App_Model
             /*
              * Сначала сохраняем обычные поля тренера.
              */
-            trainerRepository.Update(chosenTrainer);
+            _unitOfWork.Trainers.Update(chosenTrainer);
 
             /*
              * Открепление атлетов.
@@ -355,7 +403,7 @@ namespace App_Model
                 foreach (Athlete athlete in deleteathlete)
                 {
                     Athlete? athleteInDb =
-                        athleteRepository.ReadById(athlete.Id);
+                        _unitOfWork.Athletes.ReadById(athlete.Id);
 
                     if (athleteInDb == null)
                         continue;
@@ -364,7 +412,7 @@ namespace App_Model
                         athleteInDb.trainer.Id == chosenTrainer.Id)
                     {
                         athleteInDb.trainer = null;
-                        athleteRepository.Update(athleteInDb);
+                        _unitOfWork.Athletes.Update(athleteInDb);
                     }
                 }
             }
@@ -377,20 +425,37 @@ namespace App_Model
                 foreach (Athlete athlete in addathlete)
                 {
                     Athlete? athleteInDb =
-                        athleteRepository.ReadById(athlete.Id);
+                        _unitOfWork.Athletes.ReadById(athlete.Id);
 
                     if (athleteInDb == null)
                         continue;
 
                     athleteInDb.trainer = chosenTrainer;
 
-                    athleteRepository.Update(athleteInDb);
+                    _unitOfWork.Athletes.Update(athleteInDb);
                 }
             }
 
-            return trainerRepository.ReadById(id);
+            _unitOfWork.Save();
+            return _unitOfWork.Trainers.ReadById(id);
         }
-
+        /// <summary>
+        /// Обновляет информацию атлета с указанным идентификатором и сохраняет изменения в хранилище.
+        /// </summary>
+        /// <remarks>Изменения применяются к найденному объекту и сохраняются вызовом Save() у unit of
+        /// work; если тренер передан, привязка произойдёт только при наличии тренера в базе.</remarks>
+        /// <param name="id">Идентификатор атлета для поиска и обновления.</param>
+        /// <param name="fullname">Новое ФИО; если null — поле не изменяется. Не должно быть пустым или содержать цифры.</param>
+        /// <param name="gendre">Пол атлета; если null — поле не изменяется.</param>
+        /// <param name="age">Возраст в годах; если null — поле не изменяется. Допустимый диапазон 14–120.</param>
+        /// <param name="height">Рост в сантиметрах; если null — поле не изменяется. Допустимый диапазон 1–300.</param>
+        /// <param name="weight">Вес в килограммах; если null — поле не изменяется. Допустимый диапазон 1–1000.</param>
+        /// <param name="trainingType">Тип тренировки; если null — поле не изменяется.</param>
+        /// <param name="trainer">Объект тренера для привязки; если null — привязка не выполняется. Привязка выполняется только если тренер
+        /// существует в хранилище.</param>
+        /// <returns>Обновлённый объект Athlete либо null, если атлет с указанным идентификатором не найден.</returns>
+        /// <exception cref="ArgumentException">Выбрасывается при некорректных значениях: возраст вне диапазона 14–120, рост ≤0 или >300, вес ≤0 или >1000,
+        /// либо при некорректном ФИО (пустое/пробельное или содержит цифры).</exception>
         public Athlete? UpdateInfoAthlete(
             int id,
             string? fullname,
@@ -402,7 +467,7 @@ namespace App_Model
             Trainer? trainer)
         {
             Athlete? chosenAthlete =
-                athleteRepository.ReadById(id);
+                _unitOfWork.Athletes.ReadById(id);
 
             if (chosenAthlete == null)
                 return null;
@@ -459,7 +524,7 @@ namespace App_Model
             if (trainer != null)
             {
                 Trainer? trainerInDb =
-                    trainerRepository.ReadById(trainer.Id);
+                    _unitOfWork.Trainers.ReadById(trainer.Id);
 
                 if (trainerInDb != null)
                 {
@@ -467,11 +532,22 @@ namespace App_Model
                 }
             }
 
-            athleteRepository.Update(chosenAthlete);
-
+            _unitOfWork.Athletes.Update(chosenAthlete);
+            _unitOfWork.Save();
             return chosenAthlete;
         }
-
+        /// <summary>
+        /// Привязывает спортсмена к тренеру: проверяет ненулевые аргументы, наличие сущностей в хранилище,
+        /// предотвращает повторную привязку, обновляет записи и сохраняет изменения.
+        /// </summary>
+        /// <remarks>Изменяет переданный объект athlete и коллекцию тренера, затем сохраняет изменения
+        /// через UnitOfWork.</remarks>
+        /// <param name="trainer">Тренер для привязки; используется для поиска соответствующей записи в хранилище и обновления его коллекции
+        /// спортсменов.</param>
+        /// <param name="athlete">Спортсмен, которого необходимо привязать к тренеру; обновляется запись спортсмена и переданный объект для
+        /// отражения изменения в UI.</param>
+        /// <returns>true при успешной привязке и сохранении изменений; false при некорректных аргументах, отсутствии сущностей в
+        /// базе или если спортсмен уже привязан к тому же тренеру.</returns>
         public bool Registration(
             Trainer trainer,
             Athlete athlete)
@@ -480,10 +556,10 @@ namespace App_Model
                 return false;
 
             Trainer? trainerInDb =
-                trainerRepository.ReadById(trainer.Id);
+                _unitOfWork.Trainers.ReadById(trainer.Id);
 
             Athlete? athleteInDb =
-                athleteRepository.ReadById(athlete.Id);
+                _unitOfWork.Athletes.ReadById(athlete.Id);
 
             if (trainerInDb == null ||
                 athleteInDb == null)
@@ -499,7 +575,7 @@ namespace App_Model
 
             athleteInDb.trainer = trainerInDb;
 
-            athleteRepository.Update(athleteInDb);
+            _unitOfWork.Athletes.Update(athleteInDb);
 
             /*
              * Также меняем переданный объект,
@@ -512,10 +588,20 @@ namespace App_Model
             {
                 trainer.Athlete.Add(athlete);
             }
-
+            _unitOfWork.Save();
             return true;
         }
-
+        /// <summary>
+        /// Рассчитывает индивидуальную программу тренировок на основе антропометрии, возраста, пола и предпочтений;
+        /// назначает рекомендованный тип персонального тренера и возвращает подробный текстовый отчёт о плане.
+        /// </summary>
+        /// <remarks>Присваивает athlete.TypePersonalTraining и при наличии записи в базе обновляет её
+        /// через _unitOfWork (Update + Save). Индекс нагрузки вычисляется как сумма ИМТ и поправок по полу,
+        /// предпочтению тренировки и возрасту (начиная с 40 лет).</remarks>
+        /// <param name="athlete">Атлет с заполненными свойствами Id, FullName, Age, Height, Weight, Gendre и TrainingType; при null
+        /// возвращается сообщение "Атлет не найден!".</param>
+        /// <returns>Текстовый отчёт с ИМТ, вычисленным индексом нагрузки, назначенной программой (заголовок, цель, расписание,
+        /// содержание) и рекомендованным типом специализации тренера; при null — сообщение "Атлет не найден!".</returns>
         public string PersonalTraining(Athlete athlete)
         {
             if (athlete == null)
@@ -694,14 +780,15 @@ namespace App_Model
                 recommendedType;
 
             Athlete? athleteInDb =
-                athleteRepository.ReadById(athlete.Id);
+                _unitOfWork.Athletes.ReadById(athlete.Id);
 
             if (athleteInDb != null)
             {
                 athleteInDb.TypePersonalTraining =
                     recommendedType;
 
-                athleteRepository.Update(athleteInDb);
+                _unitOfWork.Athletes.Update(athleteInDb);
+                _unitOfWork.Save();
             }
 
             return
@@ -737,7 +824,14 @@ namespace App_Model
                 $"Рекомендованный тип специализации тренера: " +
                 $"{recommendedType}";
         }
-
+        /// <summary>
+        /// Возвращает список тренеров, отсортированный по убыванию процента соответствия заданному атлету.
+        /// </summary>
+        /// <remarks>Если у атлета не задан TypePersonalTraining, вызывается PersonalTraining(athlete) для
+        /// его инициализации. Список тренеров получается из _unitOfWork.Trainers.List().</remarks>
+        /// <param name="athlete">Атлет, для которого подбираются и ранжируются тренеры.</param>
+        /// <returns>Список тренеров, упорядоченный по убыванию CalculateMatchPercentage для указанного атлета; при null
+        /// возвращается пустой список.</returns>
         public List<Trainer> PersonalFilterTrainers(
             Athlete athlete)
         {
@@ -749,17 +843,24 @@ namespace App_Model
                 PersonalTraining(athlete);
             }
 
-            return trainerRepository
+            return _unitOfWork.Trainers
                 .List()
                 .OrderByDescending(
                     t => CalculateMatchPercentage(t, athlete))
                 .ToList();
         }
-
+        /// <summary>
+        /// Вычисляет и присваивает рейтинг каждому тренеру, обновляет записи в репозитории и сохраняет изменения, затем
+        /// возвращает список тренеров, отсортированный по убыванию рейтинга.
+        /// </summary>
+        /// <remarks>Для расчёта рейтинга используется CalculateRating. Изменения свойства Rating
+        /// применяются через механизм UnitOfWork и сохраняются вызовом Save().</remarks>
+        /// <returns>Список тренеров, отсортированный по убыванию значения Rating; при отсутствии тренеров возвращается пустой
+        /// список.</returns>
         public List<Trainer> RateTrainers()
         {
             List<Trainer> trainers =
-                trainerRepository.List().ToList();
+                _unitOfWork.Trainers.List().ToList();
 
             if (trainers.Count == 0)
             {
@@ -771,14 +872,21 @@ namespace App_Model
                 trainer.Rating =
                     CalculateRating(trainer);
 
-                trainerRepository.Update(trainer);
+                _unitOfWork.Trainers.Update(trainer);
             }
+            _unitOfWork.Save();
 
             return trainers
                 .OrderByDescending(t => t.Rating)
                 .ToList();
         }
-
+        /// <summary>
+        /// Вычисляет числовой рейтинг тренера на основе стажа, числа спортсменов и возраста.
+        /// </summary>
+        /// <remarks>Формула: (WorkExperience * 3.0) + (количество спортсменов * 10.0) - (Age * 0.5).
+        /// Количество спортсменов берётся из Trainer.Athlete?.Count с обработкой null.</remarks>
+        /// <param name="trainer">Тренер для расчёта рейтинга; при null возвращается 0.</param>
+        /// <returns>Дробный рейтинг (double); 0 при null.</returns>
         public double CalculateRating(Trainer trainer)
         {
             if (trainer == null)
@@ -792,7 +900,17 @@ namespace App_Model
                 (athleteCount * 10.0) -
                 (trainer.Age * 0.5);
         }
-
+        /// <summary>
+        /// Вычисляет процент соответствия между тренером и спортсменом на основе типа тренировки, пола, стажа и
+        /// загрузки тренера.
+        /// </summary>
+        /// <remarks>Подсчёт: +45 за точное совпадение типа тренировки; +20 за частичное совпадение типа;
+        /// +15 за совпадение пола; до +20 за стаж (2 очка за год, максимум 20); до +20 за доступность (уменьшается на 4
+        /// за каждого текущего спортсмена). При необходимости вызывается PersonalTraining(athlete) для установки типа
+        /// тренировки. Итог ограничивается 100.</remarks>
+        /// <param name="trainer">Тренер для оценки соответствия.</param>
+        /// <param name="athlete">Спортсмен для оценки соответствия.</param>
+        /// <returns>Процент соответствия в диапазоне 0–100; возвращает 0 при null-аргументах.</returns>
         public int CalculateMatchPercentage(
             Trainer trainer,
             Athlete athlete)

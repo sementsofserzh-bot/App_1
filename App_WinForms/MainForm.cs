@@ -1,17 +1,17 @@
 using System;
 using System.Windows.Forms;
-using App_Model;
+using Contracts;
 
 namespace App_WinForms
 {
     public partial class MainForm : Form
     {
-        private readonly ILogics logics;
+        private readonly ILogics _logics;
 
         public MainForm(ILogics logics)
         {
             InitializeComponent();
-            this.logics = logics;
+            this._logics = logics;
         }
         
         /// <summary>
@@ -26,7 +26,7 @@ namespace App_WinForms
         {
             if (CheckPassword("1234"))
             {
-                using EmployeeForm form = new EmployeeForm(logics);
+                using EmployeeForm form = new EmployeeForm(_logics);
                 form.ShowDialog();
             }
             else
@@ -43,7 +43,7 @@ namespace App_WinForms
         /// <param name="e">Аргументы события клика.</param>
         private void buttonUser_Click(object sender, EventArgs e)
         {
-            using UserForm form = new UserForm(logics);
+            using UserForm form = new UserForm(_logics);
             form.ShowDialog();
         }
         /// <summary>

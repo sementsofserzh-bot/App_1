@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Windows.Forms;
 using App_Model;
+using Contracts;
 
 namespace App_WinForms
 {

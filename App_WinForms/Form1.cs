@@ -6,6 +6,7 @@ using System.Linq;
 using System.Windows.Forms;
 using App_Model;
 using DataAccessLayer;
+using Contracts;
 
 namespace App_WinForms
 {

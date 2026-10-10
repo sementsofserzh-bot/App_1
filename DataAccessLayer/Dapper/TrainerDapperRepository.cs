@@ -2,6 +2,7 @@
 using System.Data;
 using System.Linq;
 using App_Model;
+using Contracts;
 using Dapper;
 using Microsoft.Data.Sqlite;
 
@@ -9,55 +10,55 @@ namespace DataAccessLayer
 {
     public class TrainerDapperRepository : IRepository<Trainer>
     {
-        /// <summary>
-        /// Строка подключения, используемая для создания подключений к хранилищу данных.
-        /// </summary>
-        /// <remarks>Инициализируется в конструкторе и неизменяема в течение времени жизни
-        /// экземпляра.</remarks>
         private readonly string _connectionString;
         /// <summary>
-        /// Инициализирует экземпляр TrainerDapperRepository, устанавливая строку подключения из аргумента или
-        /// DatabaseInitializer.ConnectionString при null.
+        /// Инициализирует новый экземпляр TrainerDapperRepository с указанной строкой подключения или с
+        /// DatabaseInitializer.ConnectionString по умолчанию.
         /// </summary>
+        /// <remarks>Переданное значение сохраняется в поле _connectionString.</remarks>
         /// <param name="connectionString">Строка подключения к базе данных; при null используется DatabaseInitializer.ConnectionString.</param>
         public TrainerDapperRepository(string? connectionString = null)
         {
             _connectionString = connectionString ?? DatabaseInitializer.ConnectionString;
         }
         /// <summary>
-        /// Создаёт новое подключение SQLite на основе _connectionString.
+        /// Создаёт и возвращает новое подключение IDbConnection к базе данных SQLite, инициализированное текущей
+        /// строкой подключения.
         /// </summary>
-        /// <remarks>Владелец должен освободить ресурс (вызвать Dispose или использовать using) после
-        /// использования. Подключение не открывается автоматически.</remarks>
-        /// <returns>IDbConnection, представляющее новое подключение SQLite. Подключение не открыто.</returns>
+        /// <returns>Новый экземпляр IDbConnection, инициализированный строкой подключения; подключение не открыто.</returns>
         private IDbConnection CreateConnection() => new SqliteConnection(_connectionString);
         /// <summary>
-        /// Вставляет объект Trainer в таблицу Trainers и присваивает свойству Id сгенерированный идентификатор записи.
+        /// Добавляет запись тренера в базу данных и устанавливает свойству Id значение, сгенерированное при вставке.
         /// </summary>
-        /// <remarks>Открывается подключение через CreateConnection(), выполняется INSERT и SELECT
-        /// last_insert_rowid() для получения идентификатора. Исключения при ошибках выполнения передаются
-        /// вызывающему.</remarks>
-        /// <param name="item">Объект Trainer с данными для вставки; после выполнения Id обновляется значением, возвращённым базой.</param>
+        /// <remarks>Открывает подключение, выполняет INSERT и использует last_insert_rowid() для
+        /// получения идентификатора. Исключения от операций ADO.NET/Dapper не обрабатываются внутри метода.</remarks>
+        /// <param name="item">Trainer для вставки; после выполнения его Id будет установлен в идентификатор вставленной записи.</param>
         public void Add(Trainer item)
         {
             using var connection = CreateConnection();
+            connection.Open();
+
             string sql = @"
                 INSERT INTO Trainers (FullName, Gendre, TrainingType, Age, WorkExperience, Rating)
                 VALUES (@FullName, @Gendre, @TrainingType, @Age, @WorkExperience, @Rating);
                 SELECT last_insert_rowid();";
 
             item.Id = connection.QuerySingle<int>(sql, item);
+
+            connection.Close();
         }
         /// <summary>
-        /// Обновляет запись Trainer в хранилище по идентификатору, записывая новые значения полей FullName, Gendre,
-        /// TrainingType, Age, WorkExperience и Rating.
+        /// Обновляет существующую запись тренера в базе данных по значению Id.
         /// </summary>
-        /// <remarks>Выполняет SQL UPDATE через соединение; все перечисленные поля перезаписываются в базе
-        /// данных.</remarks>
-        /// <param name="item">Экземпляр Trainer с заполненным Id и обновлёнными значениями полей для сохранения.</param>
+        /// <remarks>Выполняет SQL UPDATE через Dapper: открывает подключение, выполняет запрос и
+        /// закрывает подключение. Явной транзакции не используется; при ошибках выполнения выбрасываются
+        /// исключения.</remarks>
+        /// <param name="item">Экземпляр Trainer с актуальными значениями полей; поле Id определяет запись для обновления.</param>
         public void Update(Trainer item)
         {
             using var connection = CreateConnection();
+            connection.Open();
+
             string sql = @"
                 UPDATE Trainers 
                 SET FullName = @FullName, 
@@ -69,29 +70,39 @@ namespace DataAccessLayer
                 WHERE Id = @Id;";
 
             connection.Execute(sql, item);
+
+            connection.Close();
         }
         /// <summary>
-        /// Удаляет запись тренера из таблицы Trainers по указанному идентификатору.
+        /// Удаляет запись тренера из таблицы Trainers по заданному идентификатору.
         /// </summary>
-        /// <remarks>Выполняет SQL-команду DELETE через подключение, создаваемое CreateConnection; не
-        /// проверяет наличие записи и не возвращает результат выполнения.</remarks>
-        /// <param name="id">Идентификатор удаляемой записи тренера.</param>
+        /// <remarks>Открывает подключение и выполняет SQL DELETE; не проверяет наличие записи и не
+        /// возвращает результат операции. Исключения при ошибках подключения или выполнения SQL не
+        /// обрабатываются.</remarks>
+        /// <param name="id">Идентификатор тренера для удаления.</param>
         public void Delete(int id)
         {
             using var connection = CreateConnection();
+            connection.Open();
+
             string sql = "DELETE FROM Trainers WHERE Id = @Id;";
             connection.Execute(sql, new { Id = id });
+
+            connection.Close();
         }
         /// <summary>
-        /// Возвращает тренера с указанным идентификатором, включая связанных спортсменов.
+        /// Возвращает тренера с указанным идентификатором вместе с его спортсменами, загруженными через LEFT JOIN;
+        /// возвращает null, если тренер не найден.
         /// </summary>
-        /// <remarks>Выполняется LEFT JOIN для загрузки связанных Athlete; дублирующие записи спортсменов
-        /// фильтруются. Использует Dapper для сопоставления Trainer и Athlete (splitOn: "Id").</remarks>
+        /// <remarks>Выполняет SQL-запрос с LEFT JOIN и использует Dapper для маппинга Trainer и Athlete;
+        /// открывает и закрывает соединение и предотвращает дублирование спортсменов по Id.</remarks>
         /// <param name="id">Идентификатор тренера.</param>
-        /// <returns>Экземпляр Trainer с заполненным списком Athlete или null, если тренер не найден.</returns>
+        /// <returns>Экземпляр Trainer с заполненным списком Athlete или null, если запись не найдена.</returns>
         public Trainer? ReadById(int id)
         {
             using var connection = CreateConnection();
+            connection.Open();
+
             string sql = @"
                 SELECT t.*, a.* 
                 FROM Trainers t
@@ -118,17 +129,22 @@ namespace DataAccessLayer
                 splitOn: "Id"
             );
 
+            connection.Close();
             return trainer;
         }
         /// <summary>
-        /// Возвращает последовательность тренеров с заполненными коллекциями связанных атлетов.
+        /// Возвращает перечисление тренеров с их связанными спортсменами, полученное из базы данных.
         /// </summary>
-        /// <remarks>Открывает соединение через CreateConnection, выполняет LEFT JOIN между Trainers и
-        /// Athletes и объединяет строки в объекты Trainer с помощью Dapper (multi-mapping, splitOn: "Id").</remarks>
-        /// <returns>Коллекция уникальных Trainer, каждый с заполненной коллекцией Athlete.</returns>
+        /// <remarks>Запрос выполняется с использованием Dapper; соединение открывается и закрывается в
+        /// методе. В результирующей коллекции каждый тренер представлен единожды, дубликаты спортсменов
+        /// игнорируются.</remarks>
+        /// <returns>IEnumerable<Trainer>: перечисление тренеров, у каждого заполнена коллекция Athlete со связанными сущностями
+        /// Athlete; для тренеров без спортсменов коллекция будет пустой.</returns>
         public IEnumerable<Trainer> List()
         {
             using var connection = CreateConnection();
+            connection.Open();
+
             string sql = @"
                 SELECT t.*, a.* 
                 FROM Trainers t
@@ -156,7 +172,8 @@ namespace DataAccessLayer
                 splitOn: "Id"
             );
 
-            return trainerDictionary.Values;
+            connection.Close();
+            return trainerDictionary.Values.ToList();
         }
     }
 }

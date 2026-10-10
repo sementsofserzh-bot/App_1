@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using Contracts;
 using App_Model;
 
 namespace App_WinForms

@@ -1,3 +1,4 @@
+using System;
 using App_Model;
 
 namespace Contracts
@@ -6,6 +7,6 @@ namespace Contracts
     {
         IRepository<Trainer> Trainers { get; }
         IRepository<Athlete> Athletes { get; }
-        int SaveChanges();
+        void Save();
     }
 }

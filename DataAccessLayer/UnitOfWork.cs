@@ -5,28 +5,18 @@ namespace DataAccessLayer
 {
     public sealed class UnitOfWork : IUnitOfWork
     {
-        private readonly DBContext context;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public UnitOfWork(
-            DBContext context,
-            IRepository<Trainer> trainers,
-            IRepository<Athlete> athletes)
+        public UnitOfWork(string? connectionString = null)
         {
-            this.context = context;
-            Trainers = trainers;
-            Athletes = athletes;
+            _unitOfWork = new DapperUnitOfWork(connectionString);
         }
 
-        public IRepository<Trainer> Trainers { get; }
-        public IRepository<Athlete> Athletes { get; }
+        public IRepository<Trainer> Trainers => _unitOfWork.Trainers;
+        public IRepository<Athlete> Athletes => _unitOfWork.Athletes;
 
-        public int SaveChanges()
-        {
-            int result = context.SaveChanges();
-            context.ChangeTracker.Clear();
-            return result;
-        }
+        public void Save() => _unitOfWork.Save();
 
-        public void Dispose() => context.Dispose();
+        public void Dispose() => _unitOfWork.Dispose();
     }
 }

@@ -14,16 +14,20 @@ namespace DataAccessLayer
     public class EntityRepository<T> : IRepository<T>
         where T : class, IDomainObject
     {
+        private readonly DBContext _context;
+
+        public EntityRepository(DBContext context)
+        {
+            _context = context ?? throw new ArgumentNullException(nameof(context));
+        }
+
         /// <summary>
         /// Добавляет новую сущность в базу данных.
         /// </summary>
         /// <param name="item">Добавляемая сущность.</param>
         public void Add(T item)
         {
-            using DBContext context = new DBContext();
-
-            context.Set<T>().Add(item);
-            context.SaveChanges();
+            _context.Set<T>().Add(item);
         }
 
         /// <summary>
@@ -32,14 +36,11 @@ namespace DataAccessLayer
         /// <param name="id">Идентификатор удаляемой сущности.</param>
         public void Delete(int id)
         {
-            using DBContext context = new DBContext();
-
-            T? item = context.Set<T>().Find(id);
+            T? item = _context.Set<T>().Find(id);
 
             if (item != null)
             {
-                context.Set<T>().Remove(item);
-                context.SaveChanges();
+                _context.Set<T>().Remove(item);
             }
         }
 
@@ -50,27 +51,21 @@ namespace DataAccessLayer
         /// <returns>Коллекция найденных сущностей.</returns>
         public IEnumerable<T> List()
         {
-            using DBContext context = new DBContext();
-
             if (typeof(T) == typeof(Trainer))
             {
-                return context.Set<T>()
+                return _context.Set<T>()
                     .Include("Athlete")
-                    .AsNoTracking()
                     .ToList();
             }
 
             if (typeof(T) == typeof(Athlete))
             {
-                return context.Set<T>()
+                return _context.Set<T>()
                     .Include("trainer")
-                    .AsNoTracking()
                     .ToList();
             }
 
-            return context.Set<T>()
-                .AsNoTracking()
-                .ToList();
+            return _context.Set<T>().ToList();
         }
 
         /// <summary>
@@ -83,27 +78,21 @@ namespace DataAccessLayer
         /// </returns>
         public T? ReadById(int id)
         {
-            using DBContext context = new DBContext();
-
             if (typeof(T) == typeof(Trainer))
             {
-                return context.Set<T>()
+                return _context.Set<T>()
                     .Include("Athlete")
-                    .AsNoTracking()
                     .FirstOrDefault(x => x.Id == id);
             }
 
             if (typeof(T) == typeof(Athlete))
             {
-                return context.Set<T>()
+                return _context.Set<T>()
                     .Include("trainer")
-                    .AsNoTracking()
                     .FirstOrDefault(x => x.Id == id);
             }
 
-            return context.Set<T>()
-                .AsNoTracking()
-                .FirstOrDefault(x => x.Id == id);
+            return _context.Set<T>().FirstOrDefault(x => x.Id == id);
         }
 
         /// <summary>
@@ -112,10 +101,7 @@ namespace DataAccessLayer
         /// <param name="item">Сущность с обновленными данными.</param>
         public void Update(T item)
         {
-            using DBContext context = new DBContext();
-
-            context.Set<T>().Update(item);
-            context.SaveChanges();
+            _context.Set<T>().Update(item);
         }
     }
 }

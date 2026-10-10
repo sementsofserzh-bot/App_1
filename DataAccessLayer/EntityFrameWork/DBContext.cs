@@ -9,6 +9,13 @@ namespace DataAccessLayer
     /// </summary>
     public class DBContext : DbContext
     {
+        private readonly string _connectionString;
+
+        public DBContext(string? connectionString = null)
+        {
+            _connectionString = connectionString ?? DatabaseInitializer.ConnectionString;
+        }
+
         /// <summary>
         /// Набор сущностей Trainer в базе данных.
         /// </summary>
@@ -27,7 +34,7 @@ namespace DataAccessLayer
         /// </param>
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlite(DatabaseInitializer.ConnectionString);
+            optionsBuilder.UseSqlite(_connectionString);
         }
 
         /// <summary>

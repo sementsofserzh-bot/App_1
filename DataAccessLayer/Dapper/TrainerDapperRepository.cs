@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using App_Model;
+using Essence;
 using Contracts;
 using Dapper;
 using Microsoft.Data.Sqlite;

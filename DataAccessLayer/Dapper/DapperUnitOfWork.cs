@@ -1,5 +1,7 @@
-﻿using App_Model;
+﻿
 using Contracts;
+using Essence;
+
 
 namespace DataAccessLayer
 {

@@ -7,4 +7,5 @@
   <Project Path="App_WinForms/App_WinForms.csproj" />
   <Project Path="Contracts/Contracts.csproj" Id="99ec8f91-9068-45d3-b388-697236ca9422" />
   <Project Path="DataAccessLayer/DataAccessLayer.csproj" Id="ae336bd8-cc15-4577-b0bc-388854b86529" />
+  <Project Path="Essence/Essence.csproj" Id="5dee168c-4ff7-42cc-a48e-e293a88dfd57" />
 </Solution>

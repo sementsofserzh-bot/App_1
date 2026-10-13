@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Contracts;
-using DataAccessLayer;
+﻿using Contracts;
+using Essence;
 
 namespace App_Model
 {

@@ -1,6 +1,5 @@
-using System;
-using App_Model;
-
+using Contracts;
+using Essence;
 namespace Contracts
 {
     public interface IUnitOfWork : IDisposable

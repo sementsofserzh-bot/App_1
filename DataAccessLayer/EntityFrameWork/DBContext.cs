@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using App_Model;
+using Essence;
 
 namespace DataAccessLayer
 {

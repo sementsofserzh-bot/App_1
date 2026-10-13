@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿
 
-namespace Contracts
+namespace Essence
 {
     /// <summary>
     /// Определяет базовый интерфейс для доменных объектов.

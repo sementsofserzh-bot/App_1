@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows.Forms;
 using App_Model;
 using Contracts;
+using Essence; 
 
 namespace App_WinForms
 {

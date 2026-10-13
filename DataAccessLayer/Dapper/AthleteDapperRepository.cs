@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using App_Model;
 using Contracts;
 using Dapper;
 using Microsoft.Data.Sqlite;
+using Essence;
 
 namespace DataAccessLayer
 {

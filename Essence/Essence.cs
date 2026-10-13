@@ -1,5 +1,5 @@
-﻿using Contracts;
-namespace App_Model
+﻿
+namespace Essence
 {
     public enum Gendre { М, Ж }
 

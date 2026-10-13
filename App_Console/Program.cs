@@ -1,6 +1,8 @@
 ﻿using App_Model;
 using DataAccessLayer;
 using Contracts;
+using Essence;
+
 
 namespace App_Console
 {

@@ -1,7 +1,6 @@
-﻿using System;
-using System.Windows.Forms;
-using Contracts;
+﻿
 using App_Model;
+using Essence;
 
 namespace App_WinForms
 {

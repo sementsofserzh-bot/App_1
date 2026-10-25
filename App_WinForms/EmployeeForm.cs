@@ -3,16 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 using App_Model;
-using Contracts;
 using Essence; 
 
 namespace App_WinForms
 {
+    /// <summary>
+    /// Форма сотрудника для управления тренерами и атлетами.
+    /// </summary>
     public partial class EmployeeForm : Form
     {
-        private readonly ILogics logics;
+        private readonly IEmployeeLogic logics;
 
-        public EmployeeForm(ILogics logics)
+        /// <summary>
+        /// Создаёт форму сотрудника с операциями управления данными.
+        /// </summary>
+        /// <param name="logics">Операции сотрудника.</param>
+        public EmployeeForm(IEmployeeLogic logics)
         {
             InitializeComponent();
             this.logics = logics;

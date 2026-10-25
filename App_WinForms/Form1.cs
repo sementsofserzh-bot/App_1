@@ -5,15 +5,18 @@ using App_Model;
 
 namespace App_WinForms
 {
+    /// <summary>
+    /// Общая форма для просмотра и изменения данных тренеров и атлетов.
+    /// </summary>
     public partial class Form1 : Form
     {
-        private readonly ILogics _logics;
+        private readonly ICombinedLogic _logics;
         /// <summary>
-        /// Инициализирует новый экземпляр Form1 и сохраняет переданный ILogics.
+        /// Инициализирует новый экземпляр Form1 и сохраняет переданный интерфейс операций.
         /// </summary>
-        /// <param name="logics">Реализация ILogics, используемая формой для выполнения логики приложения.</param>
+        /// <param name="logics">Операции сотрудника и пользователя для этой формы.</param>
         /// <exception cref="ArgumentNullException">Если <paramref name="logics"/> равен null.</exception>
-        public Form1(ILogics logics)
+        public Form1(ICombinedLogic logics)
         {
             InitializeComponent();
             _logics = logics ?? throw new ArgumentNullException(nameof(logics));

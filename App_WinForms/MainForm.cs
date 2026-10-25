@@ -1,18 +1,27 @@
 using System;
 using System.Windows.Forms;
-using Contracts;
 using App_Model;
 
 namespace App_WinForms
 {
+    /// <summary>
+    /// Главная форма для выбора пользовательского или служебного режима.
+    /// </summary>
     public partial class MainForm : Form
     {
-        private readonly ILogics _logics;
+        private readonly IEmployeeLogic _employeeLogic;
+        private readonly IUserLogic _userLogic;
 
-        public MainForm(ILogics logics)
+        /// <summary>
+        /// Создаёт главную форму с операциями сотрудника и пользователя.
+        /// </summary>
+        /// <param name="employeeLogic">Операции сотрудника.</param>
+        /// <param name="userLogic">Операции пользователя.</param>
+        public MainForm(IEmployeeLogic employeeLogic, IUserLogic userLogic)
         {
             InitializeComponent();
-            this._logics = logics;
+            _employeeLogic = employeeLogic ?? throw new ArgumentNullException(nameof(employeeLogic));
+            _userLogic = userLogic ?? throw new ArgumentNullException(nameof(userLogic));
         }
         
         /// <summary>
@@ -27,7 +36,7 @@ namespace App_WinForms
         {
             if (CheckPassword("1234"))
             {
-                using EmployeeForm form = new EmployeeForm(_logics);
+                using EmployeeForm form = new EmployeeForm(_employeeLogic);
                 form.ShowDialog();
             }
             else
@@ -44,7 +53,7 @@ namespace App_WinForms
         /// <param name="e">Аргументы события клика.</param>
         private void buttonUser_Click(object sender, EventArgs e)
         {
-            using UserForm form = new UserForm(_logics);
+            using UserForm form = new UserForm(_userLogic);
             form.ShowDialog();
         }
         /// <summary>

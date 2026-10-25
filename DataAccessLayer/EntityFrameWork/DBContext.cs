@@ -11,6 +11,7 @@ namespace DataAccessLayer
     {
         private readonly string _connectionString;
 
+        /// <summary>Создаёт контекст SQLite с указанной или стандартной строкой подключения.</summary>
         public DBContext(string? connectionString = null)
         {
             _connectionString = connectionString ?? DatabaseInitializer.ConnectionString;

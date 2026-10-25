@@ -4,11 +4,18 @@ using Essence;
 
 namespace App_WinForms
 {
+    /// <summary>
+    /// Форма пользователя для регистрации, подбора тренера и просмотра рекомендаций.
+    /// </summary>
     public partial class UserForm : Form
     {
-        private readonly ILogics logics;
+        private readonly IUserLogic logics;
 
-        public UserForm(ILogics logics)
+        /// <summary>
+        /// Создаёт форму пользователя с операциями бизнес-логики.
+        /// </summary>
+        /// <param name="logics">Операции, доступные пользователю.</param>
+        public UserForm(IUserLogic logics)
         {
             InitializeComponent();
             this.logics = logics;

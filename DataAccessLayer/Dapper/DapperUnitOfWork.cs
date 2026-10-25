@@ -10,33 +10,27 @@ namespace DataAccessLayer
     /// </summary>
     public class DapperUnitOfWork : IUnitOfWork
     {
+        private readonly DapperSession _session;
+
         public IRepository<Trainer> Trainers { get; }
         public IRepository<Athlete> Athletes { get; }
 
+        /// <summary>Создаёт общую сессию Dapper для двух репозиториев.</summary>
         public DapperUnitOfWork(string? connectionString = null)
         {
-            string connStr = connectionString ?? DatabaseInitializer.ConnectionString;
-
-            Trainers = new TrainerDapperRepository(connStr);
-            Athletes = new AthleteDapperRepository(connStr);
+            _session = new DapperSession(connectionString);
+            Trainers = new TrainerDapperRepository(_session);
+            Athletes = new AthleteDapperRepository(_session);
         }
 
         /// <summary>
-        /// В Dapper-репозиториях запросы отправляются в БД сразу при вызове Add/Update/Delete.
-        /// Метод присутствует для сохранения единого контракта с EFUnitOfWork.
+        /// Подтверждает общую транзакцию репозиториев.
         /// </summary>
-        public void Save()
-        {
-            // Пустая реализация
-        }
+        public void Save() => _session.Save();
 
         /// <summary>
-        /// В Dapper каждое подключение открывается и закрывается внутри репозитория (using var connection).
-        /// Метод реализует IDisposable для совместимости с общепринятым интерфейсом IUnitOfWork.
+        /// Отменяет неподтверждённые изменения и освобождает соединение.
         /// </summary>
-        public void Dispose()
-        {
-            // Пустая реализация
-        }
+        public void Dispose() => _session.Dispose();
     }
 }

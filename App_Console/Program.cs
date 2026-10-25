@@ -1,6 +1,6 @@
 ﻿using App_Model;
-using DataAccessLayer;
-using Contracts;
+using App_Composition;
+using Ninject;
 using Essence;
 
 
@@ -10,12 +10,12 @@ namespace App_Console
     /// Консольное представление приложения.
     /// Реализует пользовательский интерфейс для работы с тренерами и атлетами:
     /// меню сотрудника (CRUD-операции) и меню пользователя (бизнес-функции).
-    /// Взаимодействует с бизнес-логикой через интерфейс ILogics.
+    /// Меню взаимодействуют с бизнес-логикой через интерфейсы своих операций.
     /// </summary>
     class Program
     {
         /// <summary>
-        /// 
+        /// Сопоставляет имена свойств с подписями для вывода в консоль.
         /// </summary>
         static readonly Dictionary<string, string> PropertyNames = new()
         {
@@ -141,6 +141,11 @@ namespace App_Console
             }
         }
 
+        /// <summary>
+        /// Запрашивает тип тренировки, доступный для выбранного пола атлета.
+        /// </summary>
+        /// <param name="gender">Пол атлета.</param>
+        /// <returns>Выбранный тип тренировки.</returns>
         static TrainingType ReadAthleteTrainingType(Gendre gender)
         {
             var trainingTypes = Enum.GetValues<TrainingType>()
@@ -169,12 +174,13 @@ namespace App_Console
         /// </summary>
         static void Main()
         {
-            DatabaseInitializer.Initialize();
             Console.OutputEncoding = System.Text.Encoding.UTF8;
 
-            
-            using IUnitOfWork unitOfWork = new UnitOfWork();
-            ILogics logics = new Logics(unitOfWork);
+            ApplicationServices.InitializeDatabase();
+            using var kernel = ApplicationServices.CreateKernel();
+            kernel.Get<InitialDataSeeder>().SeedIfEmpty();
+            IEmployeeLogic employeeLogic = kernel.Get<IEmployeeLogic>();
+            IConsoleUserLogic userLogic = kernel.Get<IConsoleUserLogic>();
 
 
             int password = 1234;
@@ -194,11 +200,11 @@ namespace App_Console
                 switch (role)
                 {
                     case 1:
-                        EmployeeMenu(logics, password);
+                        EmployeeMenu(employeeLogic, password);
                         break;
 
                     case 2:
-                        UserMenu(logics);
+                        UserMenu(userLogic);
                         break;
 
                     case 0:
@@ -211,7 +217,7 @@ namespace App_Console
         /// </summary>
         /// <param name="logics">Бизнес-логика приложения.</param>
         /// <param name="password">Пароль для доступа к меню.</param>
-        static void EmployeeMenu(ILogics logics, int password)
+        static void EmployeeMenu(IEmployeeLogic logics, int password)
         {
             int attempts = 3;
             bool license = false;
@@ -1015,7 +1021,7 @@ namespace App_Console
         /// программы, подбор тренеров и просмотр рейтинга тренеров.
         /// </summary>
         /// <param name="logics">Бизнес-логика приложения.</param>
-        static void UserMenu(ILogics logics)
+        static void UserMenu(IConsoleUserLogic logics)
         {
             while (true)
             {

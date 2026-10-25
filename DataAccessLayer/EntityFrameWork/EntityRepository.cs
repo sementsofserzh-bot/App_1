@@ -1,5 +1,4 @@
 ﻿using Essence;
-using Microsoft.EntityFrameworkCore;
 using Contracts;
 
 namespace DataAccessLayer
@@ -15,10 +14,14 @@ namespace DataAccessLayer
         where T : class, IDomainObject
     {
         private readonly DBContext _context;
+        private readonly Func<IQueryable<T>, IQueryable<T>> _withRelatedData;
 
-        public EntityRepository(DBContext context)
+        /// <summary>Создаёт репозиторий EF с необязательным правилом загрузки связей.</summary>
+        public EntityRepository(DBContext context,
+            Func<IQueryable<T>, IQueryable<T>>? withRelatedData = null)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
+            _withRelatedData = withRelatedData ?? (query => query);
         }
 
         /// <summary>
@@ -46,31 +49,17 @@ namespace DataAccessLayer
 
         /// <summary>
         /// Возвращает все сущности данного типа из базы данных.
-        /// Для Trainer и Athlete также загружает связанные сущности.
+        /// Связанные сущности загружаются согласно переданной стратегии запроса.
         /// </summary>
         /// <returns>Коллекция найденных сущностей.</returns>
         public IEnumerable<T> List()
         {
-            if (typeof(T) == typeof(Trainer))
-            {
-                return _context.Set<T>()
-                    .Include("Athlete")
-                    .ToList();
-            }
-
-            if (typeof(T) == typeof(Athlete))
-            {
-                return _context.Set<T>()
-                    .Include("trainer")
-                    .ToList();
-            }
-
-            return _context.Set<T>().ToList();
+            return _withRelatedData(_context.Set<T>()).ToList();
         }
 
         /// <summary>
         /// Выполняет поиск сущности по ее идентификатору.
-        /// Для Trainer и Athlete также загружает связанные сущности.
+        /// Связанные сущности загружаются согласно переданной стратегии запроса.
         /// </summary>
         /// <param name="id">Идентификатор искомой сущности.</param>
         /// <returns>
@@ -78,21 +67,7 @@ namespace DataAccessLayer
         /// </returns>
         public T? ReadById(int id)
         {
-            if (typeof(T) == typeof(Trainer))
-            {
-                return _context.Set<T>()
-                    .Include("Athlete")
-                    .FirstOrDefault(x => x.Id == id);
-            }
-
-            if (typeof(T) == typeof(Athlete))
-            {
-                return _context.Set<T>()
-                    .Include("trainer")
-                    .FirstOrDefault(x => x.Id == id);
-            }
-
-            return _context.Set<T>().FirstOrDefault(x => x.Id == id);
+            return _withRelatedData(_context.Set<T>()).FirstOrDefault(x => x.Id == id);
         }
 
         /// <summary>

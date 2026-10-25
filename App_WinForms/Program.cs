@@ -1,31 +1,32 @@
 using System;
 using System.Windows.Forms;
 using App_Model;
-using DataAccessLayer;
-using Contracts;
+using App_Composition;
+using Ninject;
 
 
 
 namespace App_WinForms
 {
+    /// <summary>
+    /// Точка входа приложения Windows Forms.
+    /// </summary>
     internal static class Program
     {
         /// <summary>
-        /// Инициализирует конфигурацию приложения и базу данных, создаёт UnitOfWork и слой логики, затем запускает
-        /// главный оконный цикл приложения.
+        /// Инициализирует приложение, получает зависимости из контейнера и запускает главную форму.
         /// </summary>
-        /// <remarks>Помечен атрибутом STAThread для однопоточной модели COM. UnitOfWork создаётся до
-        /// передачи в слой логики и будет освобождён по завершении метода (после закрытия главной формы).</remarks>
+        /// <remarks>Контейнер освобождается после закрытия главной формы.</remarks>
         [STAThread]
         static void Main()
         {
             ApplicationConfiguration.Initialize();
-            DatabaseInitializer.Initialize();
 
-            using IUnitOfWork unitOfWork = new UnitOfWork();
-            ILogics logics = new Logics(unitOfWork);
-
-            Application.Run(new MainForm(logics));
+            ApplicationServices.InitializeDatabase();
+            using var kernel = ApplicationServices.CreateKernel();
+            kernel.Get<InitialDataSeeder>().SeedIfEmpty();
+            using MainForm mainForm = kernel.Get<MainForm>();
+            Application.Run(mainForm);
         }
     }
 }

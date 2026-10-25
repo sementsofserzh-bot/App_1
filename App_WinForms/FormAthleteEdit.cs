@@ -1,14 +1,16 @@
 ﻿
-using Contracts;
 using Essence;
 using App_Model;
 
 
 namespace App_WinForms
 {
+    /// <summary>
+    /// Форма добавления и редактирования атлета.
+    /// </summary>
     public class FormAthleteEdit : Form
     {
-        private readonly ILogics _logics;
+        private readonly IAthleteEditLogic _logics;
         private readonly Athlete _athleteToEdit;
 
         private TextBox txtFullName;
@@ -20,7 +22,12 @@ namespace App_WinForms
         private Button btnSave;
         private Button btnCancel;
 
-        public FormAthleteEdit(ILogics logics, Athlete athlete = null)
+        /// <summary>
+        /// Создаёт форму и заполняет поля данными атлета при редактировании.
+        /// </summary>
+        /// <param name="logics">Операции изменения атлетов.</param>
+        /// <param name="athlete">Редактируемый атлет; при отсутствии открывается режим добавления.</param>
+        public FormAthleteEdit(IAthleteEditLogic logics, Athlete athlete = null)
         {
             _logics = logics;
             _athleteToEdit = athlete;
@@ -42,6 +49,9 @@ namespace App_WinForms
             }
         }
 
+        /// <summary>
+        /// Создаёт поля ввода и кнопки формы.
+        /// </summary>
         private void InitializeUI()
         {
             this.Size = new System.Drawing.Size(350, 350);
@@ -78,6 +88,11 @@ namespace App_WinForms
             this.Controls.AddRange(new Control[] { lblName, txtFullName, lblGender, cmbGender, lblType, cmbTrainingType, lblAge, numAge, lblHeight, numHeight, lblWeight, numWeight, btnSave, btnCancel });
         }
 
+        /// <summary>
+        /// Проверяет введённые данные и сохраняет нового или изменённого атлета.
+        /// </summary>
+        /// <param name="sender">Источник события.</param>
+        /// <param name="e">Аргументы события.</param>
         private void BtnSave_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(txtFullName.Text))

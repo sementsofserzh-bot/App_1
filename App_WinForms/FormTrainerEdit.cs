@@ -4,9 +4,12 @@ using Essence;
 
 namespace App_WinForms
 {
+    /// <summary>
+    /// Форма добавления и редактирования тренера.
+    /// </summary>
     public class FormTrainerEdit : Form
     {
-        private readonly ILogics _logics;
+        private readonly ITrainerEditLogic _logics;
         private readonly Trainer _trainerToEdit;
 
         private TextBox txtFullName;
@@ -17,7 +20,12 @@ namespace App_WinForms
         private Button btnSave;
         private Button btnCancel;
 
-        public FormTrainerEdit(ILogics logics, Trainer trainer = null)
+        /// <summary>
+        /// Создаёт форму и заполняет поля данными тренера при редактировании.
+        /// </summary>
+        /// <param name="logics">Операции изменения тренеров.</param>
+        /// <param name="trainer">Редактируемый тренер; при отсутствии открывается режим добавления.</param>
+        public FormTrainerEdit(ITrainerEditLogic logics, Trainer trainer = null)
         {
             _logics = logics;
             _trainerToEdit = trainer;
@@ -38,6 +46,9 @@ namespace App_WinForms
             }
         }
 
+        /// <summary>
+        /// Создаёт поля ввода и кнопки формы.
+        /// </summary>
         private void InitializeUI()
         {
             this.Size = new System.Drawing.Size(350, 320);
@@ -71,6 +82,11 @@ namespace App_WinForms
             this.Controls.AddRange(new Control[] { lblName, txtFullName, lblGender, cmbGender, lblType, cmbTrainingType, lblAge, numAge, lblExp, numExperience, btnSave, btnCancel });
         }
 
+        /// <summary>
+        /// Проверяет введённые данные и сохраняет нового или изменённого тренера.
+        /// </summary>
+        /// <param name="sender">Источник события.</param>
+        /// <param name="e">Аргументы события.</param>
         private void BtnSave_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(txtFullName.Text))

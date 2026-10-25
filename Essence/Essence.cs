@@ -1,8 +1,10 @@
 ﻿
 namespace Essence
 {
+    /// <summary>Пол участника спортивного зала.</summary>
     public enum Gendre { М, Ж }
 
+    /// <summary>Направление тренировки с учётом пола участника.</summary>
     public enum TrainingType { Ж_Силовая, М_Силовая, Ж_Выносливость, М_Выносливость, Ж_Гибкость, М_Гибкость }
 
     

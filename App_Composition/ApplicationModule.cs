@@ -31,7 +31,7 @@ namespace App_Composition
                 .InSingletonScope();
 
             Bind<AthleteService>().ToSelf().InSingletonScope();
-            Bind<IAthleteService>()
+            Bind<IAthleteService>()         
                 .ToMethod(context => context.Kernel.Get<AthleteService>())
                 .InSingletonScope();
             Bind<IAthleteCreateLogic>()

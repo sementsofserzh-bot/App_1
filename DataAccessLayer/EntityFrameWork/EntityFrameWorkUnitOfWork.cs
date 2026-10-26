@@ -26,7 +26,9 @@ namespace DataAccessLayer
         /// Метод для сохранения изменений в контексте БД
         /// </summary>
         public void Save() => _context.SaveChanges();
-
+        /// <summary>
+        /// Метод для освобождения ресурсов и соединения
+        /// </summary>
         public void Dispose() => _context.Dispose();
     }
 }

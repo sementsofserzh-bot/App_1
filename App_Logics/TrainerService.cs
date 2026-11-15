@@ -15,7 +15,10 @@ namespace App_Model
         }
 
         public List<Trainer> BD_Trainer => _unitOfWork.Trainers.List().ToList();
-
+        /// <summary>
+        /// Создаёт нового тренера, проверяет корректность его данных
+        /// и сохраняет его в базе данных.
+        /// </summary>
         public Trainer AddTrainer(
             string fullname,
             Gendre gendre,
@@ -49,7 +52,10 @@ namespace App_Model
 
             return trainer;
         }
-
+        /// <summary>
+        /// Удаляет тренера из базы данных и открепляет от него
+        /// всех связанных спортсменов.
+        /// </summary>
         public bool? RemoveTrainer(int id)
         {
             Trainer? trainer = _unitOfWork.Trainers.ReadById(id);
@@ -75,12 +81,17 @@ namespace App_Model
 
             return true;
         }
-
+        /// <summary>
+        /// Находит тренера в базе данных по его идентификатору.
+        /// </summary>
         public Trainer? CheckTrainer(int id)
         {
             return _unitOfWork.Trainers.ReadById(id);
         }
-
+        /// <summary>
+        /// Изменяет данные существующего тренера, а также позволяет
+        /// добавлять и откреплять связанных с ним спортсменов.
+        /// </summary>
         public Trainer? UpdateInfoTrainer(
             int id,
             string? fullname,

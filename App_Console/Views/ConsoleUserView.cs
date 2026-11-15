@@ -4,6 +4,10 @@ using Shared;
 
 namespace App_Console
 {
+    /// <summary>
+    /// Реализует консольное представление пользователя,
+    /// обеспечивая выполнение пользовательских сценариев и отображение результатов.
+    /// </summary>
     public class ConsoleUserView : IUserView
     {
         public event EventHandler? AddAthleteRequested;
@@ -12,6 +16,8 @@ namespace App_Console
         public event EventHandler? PersonalTrainingRequested;
         public event EventHandler? FilterTrainersRequested;
         public event EventHandler? SignUpFromFilterRequested;
+        public event EventHandler? RefreshAthletesRequested;
+        public event EventHandler? RefreshTrainersRequested;
 
         public AthleteInputDto NewAthlete { get; private set; } = new();
 
@@ -20,7 +26,11 @@ namespace App_Console
         public int SelectedPersonalAthleteId { get; private set; }
         public int SelectedFilterAthleteId { get; private set; }
         public int SelectedFilteredTrainerId { get; private set; }
-
+        private IReadOnlyList<TrainerMatchDto> _filteredTrainers =
+    Array.Empty<TrainerMatchDto>();
+        /// <summary>
+        /// Запускает главное меню пользователя и обрабатывает выбранные команды.
+        /// </summary>
         public void Run()
         {
             while (true)
@@ -71,7 +81,7 @@ namespace App_Console
                         break;
                 }
 
-                Console.WriteLine();
+                
                 Console.WriteLine("Нажмите любую клавишу...");
                 Console.ReadKey(true);
             }
@@ -110,6 +120,9 @@ namespace App_Console
         {
             Console.WriteLine("=== РЕГИСТРАЦИЯ ЗА ТРЕНЕРОМ ===");
 
+            RefreshAthletesRequested?.Invoke(this, EventArgs.Empty);
+            RefreshTrainersRequested?.Invoke(this, EventArgs.Empty);
+
             SelectedRegistrationAthleteId =
                 ReadInt("ID атлета: ");
 
@@ -124,6 +137,8 @@ namespace App_Console
         {
             Console.WriteLine("=== ПЕРСОНАЛЬНАЯ ТРЕНИРОВКА ===");
 
+            RefreshAthletesRequested?.Invoke(this, EventArgs.Empty);
+
             SelectedPersonalAthleteId =
                 ReadInt("ID атлета: ");
 
@@ -135,10 +150,39 @@ namespace App_Console
         {
             Console.WriteLine("=== ПОДБОР ТРЕНЕРА ===");
 
-            SelectedFilterAthleteId =
-                ReadInt("ID атлета: ");
+            RefreshAthletesRequested?.Invoke(this, EventArgs.Empty);
 
-            FilterTrainersRequested?.Invoke(
+            SelectedFilterAthleteId = ReadInt("ID атлета: ");
+
+            
+
+            _filteredTrainers = Array.Empty<TrainerMatchDto>();
+
+            FilterTrainersRequested?.Invoke(this, EventArgs.Empty);
+
+            if (_filteredTrainers.Count == 0)
+                return;
+
+            Console.Write("\nХотите записаться к тренеру? (д/н): ");
+
+            string answer = Console.ReadLine()?.Trim().ToLowerInvariant()
+                ?? "";
+
+            if (answer is not ("д" or "да" or "y" or "yes"))
+                return;
+
+            int trainerId = ReadInt("Введите ID тренера: ");
+
+            if (!_filteredTrainers.Any(
+                t => t.Trainer.Id == trainerId))
+            {
+                ShowError("Выбранного тренера нет в результатах подбора.");
+                return;
+            }
+
+            SelectedFilteredTrainerId = trainerId;
+
+            SignUpFromFilterRequested?.Invoke(
                 this, EventArgs.Empty);
         }
 
@@ -230,6 +274,7 @@ namespace App_Console
         public void ShowFilteredTrainers(
             IReadOnlyList<TrainerMatchDto> trainers)
         {
+            _filteredTrainers = trainers;
             Console.WriteLine("=== ПОДХОДЯЩИЕ ТРЕНЕРЫ ===");
 
             if (trainers.Count == 0)

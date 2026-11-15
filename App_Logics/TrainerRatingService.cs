@@ -15,7 +15,10 @@ namespace App_Model
             _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
             _calculator = calculator ?? throw new ArgumentNullException(nameof(calculator));
         }
-
+        /// <summary>
+        /// Пересчитывает и сохраняет рейтинги всех тренеров,
+        /// возвращая их список в порядке убывания рейтинга.
+        /// </summary>
         public List<Trainer> RateTrainers()
         {
             List<Trainer> trainers =

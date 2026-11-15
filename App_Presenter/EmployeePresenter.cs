@@ -7,11 +7,19 @@ using System.Text;
 
 namespace App_Presenter
 {
+    /// <summary>
+    /// Управляет взаимодействием между представлением сотрудника
+    /// и бизнес-логикой приложения.
+    /// </summary>
     public class EmployeePresenter
     {
         private readonly IEmployeeView _view;
         private readonly IEmployeeLogic _logic;
-
+        /// <summary>
+        /// Создаёт Presenter и подписывает его на события представления сотрудника.
+        /// </summary>
+        /// <param name="view">Представление сотрудника.</param>
+        /// <param name="logic">Интерфейс бизнес-логики приложения.</param>
         public EmployeePresenter(IEmployeeView view, IEmployeeLogic logic)
         {
             _view = view ?? throw new ArgumentNullException(nameof(view));
@@ -392,7 +400,9 @@ namespace App_Presenter
                 _view.ShowError(ex.Message);
             }
         }
-
+        /// <summary>
+        /// Инициализирует представление, загружая данные о тренерах и спортсменах.
+        /// </summary>
         public void Initialize()
         {
             try

@@ -4,11 +4,19 @@ using Shared;
 
 namespace App_Presenter
 {
+    /// <summary>
+    /// Управляет взаимодействием между пользовательским представлением
+    /// и бизнес-логикой приложения.
+    /// </summary>
     public class UserPresenter
     {
         private readonly IUserView _view;
         private readonly IUserLogic _logic;
-
+        /// <summary>
+        /// Создаёт Presenter и подписывает его на события пользовательского представления.
+        /// </summary>
+        /// <param name="view">Представление пользователя.</param>
+        /// <param name="logic">Интерфейс бизнес-логики приложения.</param>
         public UserPresenter(IUserView view, IUserLogic logic)
         {
             _view = view ?? throw new ArgumentNullException(nameof(view));
@@ -20,6 +28,8 @@ namespace App_Presenter
             _view.PersonalTrainingRequested += OnPersonalTraining;
             _view.FilterTrainersRequested += OnFilterTrainers;
             _view.SignUpFromFilterRequested += OnSignUpFromFilter;
+            _view.RefreshAthletesRequested += OnRefreshAthletes;
+            _view.RefreshTrainersRequested += OnRefreshTrainers;
         }
 
         private void OnAddAthlete(object? sender, EventArgs e)
@@ -301,6 +311,10 @@ namespace App_Presenter
                 _view.ShowError(ex.Message);
             }
         }
+        /// <summary>
+        /// Инициализирует представление, загружая данные о спортсменах,
+        /// тренерах и рейтинге тренеров.
+        /// </summary>
         public void Initialize()
         {
             try
@@ -308,6 +322,29 @@ namespace App_Presenter
                 RefreshAthletes();
                 RefreshTrainers();
                 RefreshRating();
+            }
+            catch (Exception ex)
+            {
+                _view.ShowError(ex.Message);
+            }
+        }
+        private void OnRefreshAthletes(object? sender, EventArgs e)
+        {
+            try
+            {
+                RefreshAthletes();
+            }
+            catch (Exception ex)
+            {
+                _view.ShowError(ex.Message);
+            }
+        }
+
+        private void OnRefreshTrainers(object? sender, EventArgs e)
+        {
+            try
+            {
+                RefreshTrainers();
             }
             catch (Exception ex)
             {

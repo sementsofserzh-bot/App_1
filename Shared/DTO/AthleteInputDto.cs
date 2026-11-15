@@ -4,6 +4,11 @@ using System.Text;
 
 namespace Shared
 {
+    /// <summary>
+    /// Содержит исходные данные спортсмена,
+    /// передаваемые между представлением и Presenter
+    /// при создании нового спортсмена.
+    /// </summary>
     public class AthleteInputDto
     {
         public string FullName { get; set; } = string.Empty;

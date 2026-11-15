@@ -13,7 +13,16 @@ namespace App_Model
         {
             _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         }
-
+        /// <summary>
+        /// Закрепляет спортсмена за выбранным тренером.
+        /// Проверяет существование объектов и предотвращает повторную
+        /// регистрацию у того же тренера.
+        /// </summary>
+        /// <param name="trainer">Тренер, за которым закрепляется спортсмен.</param>
+        /// <param name="athlete">Спортсмен, которого необходимо закрепить.</param>
+        /// <returns>
+        /// true, если регистрация выполнена успешно; иначе false.
+        /// </returns>
         public bool Registration(
             Trainer trainer,
             Athlete athlete)

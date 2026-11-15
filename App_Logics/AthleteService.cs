@@ -1,3 +1,4 @@
+
 using Contracts;
 using Essence;
 
@@ -16,7 +17,48 @@ namespace App_Model
 
         public List<Athlete> BD_Athlete => _unitOfWork.Athletes.List().ToList();
 
+        /// <summary>
+        /// Проверяет соответствие пола спортсмена и типа тренировки.
+        /// </summary>
+        private static void ValidateGenderAndTrainingType(
+            Gendre gender,
+            TrainingType trainingType)
+        {
+            if (!Enum.IsDefined(typeof(Gendre), gender))
+                throw new ArgumentException(
+                    "Некорректный пол спортсмена.");
+
+            if (!Enum.IsDefined(typeof(TrainingType), trainingType))
+                throw new ArgumentException(
+                    "Некорректный тип тренировки.");
+
+            bool isCompatible = gender switch
+            {
+                Gendre.М => trainingType is
+                    TrainingType.М_Силовая or
+                    TrainingType.М_Выносливость or
+                    TrainingType.М_Гибкость,
+
+                Gendre.Ж => trainingType is
+                    TrainingType.Ж_Силовая or
+                    TrainingType.Ж_Выносливость or
+                    TrainingType.Ж_Гибкость,
+
+                _ => false
+            };
+
+            if (!isCompatible)
+            {
+                throw new ArgumentException(
+                    "Тип тренировки не соответствует полу спортсмена.");
+            }
+        }
+        /// <summary>
+        /// Создаёт нового спортсмена, проверяет корректность его данных
+        /// и сохраняет его в базе данных.
+        /// </summary>
         public Athlete AddAthlete(
+
             string fullname,
             Gendre gendre,
             TrainingType trainingType,
@@ -24,6 +66,8 @@ namespace App_Model
             int height,
             int weight)
         {
+            ValidateGenderAndTrainingType(gendre, trainingType);
+
             if (string.IsNullOrWhiteSpace(fullname))
                 throw new ArgumentException("Имя не может быть пустым");
 
@@ -54,7 +98,9 @@ namespace App_Model
 
             return athlete;
         }
-
+        /// <summary>
+        /// Удаляет спортсмена из базы данных по его идентификатору.
+        /// </summary>
         public bool? RemoveAthlete(int id)
         {
             Athlete? athlete = _unitOfWork.Athletes.ReadById(id);
@@ -67,12 +113,17 @@ namespace App_Model
 
             return true;
         }
-
+        /// <summary>
+        /// Находит спортсмена в базе данных по его идентификатору.
+        /// </summary>
         public Athlete? CheckAthlete(int id)
         {
             return _unitOfWork.Athletes.ReadById(id);
         }
-
+        /// <summary>
+        /// Изменяет данные существующего спортсмена и сохраняет изменения
+        /// в базе данных с проверкой корректности параметров.
+        /// </summary>
         public Athlete? UpdateInfoAthlete(
             int id,
             string? fullname,
@@ -88,6 +139,16 @@ namespace App_Model
 
             if (chosenAthlete == null)
                 return null;
+
+            Gendre finalGender =
+                gendre ?? chosenAthlete.Gendre;
+
+            TrainingType finalTrainingType =
+                trainingType ?? chosenAthlete.TrainingType;
+
+            ValidateGenderAndTrainingType(
+                finalGender,
+                finalTrainingType);
 
             int finalAge =
                 age ?? chosenAthlete.Age;
@@ -151,6 +212,7 @@ namespace App_Model
 
             _unitOfWork.Athletes.Update(chosenAthlete);
             _unitOfWork.Save();
+
             return chosenAthlete;
         }
     }

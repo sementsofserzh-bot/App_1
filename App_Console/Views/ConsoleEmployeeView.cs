@@ -4,6 +4,10 @@ using Shared;
 
 namespace App_Console
 {
+    /// <summary>
+/// Реализует консольное представление сотрудника,
+/// обеспечивая взаимодействие с пользователем и отображение данных.
+/// </summary>
     public class ConsoleEmployeeView : IEmployeeView
     {
         public event EventHandler? AddTrainerRequested;
@@ -30,6 +34,9 @@ namespace App_Console
 
         private bool _suppressOutput;
 
+        /// <summary>
+        /// Запускает главное меню сотрудника и обрабатывает выбранные команды.
+        /// </summary>
         public void Run()
         {
             while (true)
@@ -48,7 +55,7 @@ namespace App_Console
                 Console.WriteLine("9. Зарегистрировать атлета за тренером");
                 Console.WriteLine("0. Назад");
 
-                Console.Write("Выберите действие: ");
+                Console.Write("\nВыберите действие: ");
                 string? choice = Console.ReadLine();
 
                 if (choice == "0")
@@ -95,7 +102,7 @@ namespace App_Console
                         break;
 
                     default:
-                        ShowError("Неизвестная команда");
+                        ShowError("Неизвестная команда.");
                         break;
                 }
 
@@ -205,7 +212,11 @@ namespace App_Console
                         return;
                     }
 
-                    ShowTrainers(new List<TrainerDto> { trainer });
+                    // Просмотр конкретного тренера
+                    PrintTrainers(new List<TrainerDto> { trainer });
+
+                    // Просмотр всех тренеров
+                    PrintTrainers(_trainers);
                     break;
 
                 case 2:
@@ -217,7 +228,57 @@ namespace App_Console
                     break;
             }
         }
+        private void PrintTrainers(IReadOnlyList<TrainerDto> trainers)
+        {
+            Console.WriteLine("\n=== ТРЕНЕРЫ ===");
 
+            foreach (var t in trainers)
+            {
+                Console.WriteLine(
+                    $"ID: {t.Id} | {t.FullName} | " +
+                    $"Пол: {(Gendre)t.Gender} | " +
+                    $"Возраст: {t.Age} | " +
+                    $"Тип: {(TrainingType)t.TrainingType} | " +
+                    $"Стаж: {t.WorkExperience} | " +
+                    $"Рейтинг: {t.Rating}");
+
+                if (t.Athletes.Count == 0)
+                {
+                    Console.WriteLine("Не прикреплены атлеты.");
+                }
+                else
+                {
+                    Console.WriteLine("Прикрепленные атлеты:");
+
+                    foreach (var athlete in t.Athletes)
+                    {
+                        Console.WriteLine(
+                            $"  - {athlete.FullName} с ID: {athlete.Id}");
+                    }
+                }
+            }
+
+            if (trainers.Count == 0)
+                Console.WriteLine("Список пуст.");
+        }
+        private void PrintAthletes(IReadOnlyList<AthleteDto> athletes)
+        {
+            Console.WriteLine("\n=== АТЛЕТЫ ===");
+
+            foreach (var a in athletes)
+            {
+                Console.WriteLine(
+                    $"ID: {a.Id} | {a.FullName} | " +
+                    $"Пол: {(Gendre)a.Gender} | " +
+                    $"Возраст: {a.Age} | " +
+                    $"Рост: {a.Height} | Вес: {a.Weight} | " +
+                    $"Тип: {(TrainingType)a.TrainingType} | " +
+                    $"Тренер: {a.TrainerName}");
+            }
+
+            if (athletes.Count == 0)
+                Console.WriteLine("Список пуст.");
+        }
         private void ViewAthletes()
         {
             RefreshLists();
@@ -242,7 +303,8 @@ namespace App_Console
                         return;
                     }
 
-                    ShowAthletes(new List<AthleteDto> { athlete });
+                    PrintAthletes(new List<AthleteDto> { athlete });
+                    PrintAthletes(_athletes);
                     break;
 
                 case 2:
@@ -323,6 +385,7 @@ namespace App_Console
                 UpdateTrainerRequested?.Invoke(this, EventArgs.Empty));
         }
 
+
         private void EditAthlete()
         {
             RefreshLists();
@@ -337,12 +400,11 @@ namespace App_Console
             }
 
             Console.WriteLine("1. Изменить ФИО");
-            Console.WriteLine("2. Изменить пол");
-            Console.WriteLine("3. Изменить тип тренировки");
-            Console.WriteLine("4. Изменить возраст");
-            Console.WriteLine("5. Изменить рост");
-            Console.WriteLine("6. Изменить вес");
-            Console.WriteLine("7. Изменить тренера");
+            Console.WriteLine("2. Изменить пол и тип тренировки");
+            Console.WriteLine("3. Изменить возраст");
+            Console.WriteLine("4. Изменить рост");
+            Console.WriteLine("5. Изменить вес");
+            Console.WriteLine("6. Изменить тренера");
 
             int choice = ReadInt("Действие: ");
 
@@ -356,28 +418,30 @@ namespace App_Console
                     break;
 
                 case 2:
-                    EditedAthlete.Gender =
-                        (int)ReadEnum<Gendre>("Новый пол");
+                    Gendre newGender =
+                        ReadEnum<Gendre>("Новый пол");
+
+                    TrainingType newTrainingType =
+                        ReadAthleteTrainingType(newGender);
+
+                    EditedAthlete.Gender = (int)newGender;
+                    EditedAthlete.TrainingType =
+                        (int)newTrainingType;
                     break;
 
                 case 3:
-                    EditedAthlete.TrainingType =
-                        (int)ReadEnum<TrainingType>("Новый тип");
-                    break;
-
-                case 4:
                     EditedAthlete.Age = ReadInt("Новый возраст: ");
                     break;
 
-                case 5:
+                case 4:
                     EditedAthlete.Height = ReadInt("Новый рост: ");
                     break;
 
-                case 6:
+                case 5:
                     EditedAthlete.Weight = ReadInt("Новый вес: ");
                     break;
 
-                case 7:
+                case 6:
                     EditedAthlete.TrainerId =
                         ReadInt("ID нового тренера: ");
                     break;
@@ -390,6 +454,7 @@ namespace App_Console
             ExecuteWithoutOutput(() =>
                 UpdateAthleteRequested?.Invoke(this, EventArgs.Empty));
         }
+
 
         private void AttachAthlete(int? trainerId = null)
         {
@@ -443,63 +508,16 @@ namespace App_Console
         {
             _trainers = trainers;
 
-            if (_suppressOutput)
-                return;
-
-            Console.WriteLine("\n=== ТРЕНЕРЫ ===");
-
-            foreach (var t in trainers)
-            {
-                Console.WriteLine(
-                    $"ID: {t.Id} | {t.FullName} | " +
-                    $"Пол: {(Gendre)t.Gender} | " +
-                    $"Возраст: {t.Age} | " +
-                    $"Тип: {(TrainingType)t.TrainingType} | " +
-                    $"Стаж: {t.WorkExperience} | " +
-                    $"Рейтинг: {t.Rating}");
-
-                if (t.Athletes.Count == 0)
-                {
-                    Console.WriteLine("Не прикреплены атлеты.");
-                }
-                else
-                {
-                    Console.WriteLine("Прикрепленные атлеты:");
-
-                    foreach (var athlete in t.Athletes)
-                    {
-                        Console.WriteLine(
-                            $"  - {athlete.FullName} с ID: {athlete.Id}");
-                    }
-                }
-            }
-
-            if (trainers.Count == 0)
-                Console.WriteLine("Список пуст.");
+            if (!_suppressOutput)
+                PrintTrainers(trainers);
         }
 
         public void ShowAthletes(IReadOnlyList<AthleteDto> athletes)
         {
             _athletes = athletes;
 
-            if (_suppressOutput)
-                return;
-
-            Console.WriteLine("\n=== АТЛЕТЫ ===");
-
-            foreach (var a in athletes)
-            {
-                Console.WriteLine(
-                    $"ID: {a.Id} | {a.FullName} | " +
-                    $"Пол: {(Gendre)a.Gender} | " +
-                    $"Возраст: {a.Age} | " +
-                    $"Рост: {a.Height} | Вес: {a.Weight} | " +
-                    $"Тип: {(TrainingType)a.TrainingType} | " +
-                    $"Тренер: {a.TrainerName}");
-            }
-
-            if (athletes.Count == 0)
-                Console.WriteLine("Список пуст.");
+            if (!_suppressOutput)
+                PrintAthletes(athletes);
         }
 
         private void ExecuteWithoutOutput(Action action)

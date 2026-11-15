@@ -4,6 +4,10 @@ using System.Text;
 
 namespace Shared
 {
+    /// <summary>
+    /// Содержит данные тренера для передачи между слоями приложения,
+    /// включая информацию о закреплённых спортсменах.
+    /// </summary>
     public class TrainerDto
     {
         public int Id { get; set; }

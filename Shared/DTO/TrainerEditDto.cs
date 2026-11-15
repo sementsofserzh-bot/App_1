@@ -4,6 +4,9 @@ using System.Text;
 
 namespace Shared
 {
+    /// <summary>
+    /// Содержит данные для изменения информации о существующем тренере.
+    /// </summary>
     public class TrainerEditDto
     {
         public int Id { get; set; }

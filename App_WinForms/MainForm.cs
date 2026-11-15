@@ -1,83 +1,77 @@
-using System;
-using System.Windows.Forms;
+
+using App_Composition;
 using App_Model;
+using Ninject;
 
 namespace App_WinForms
 {
     /// <summary>
-    /// Главная форма для выбора пользовательского или служебного режима.
+    /// Представляет главное окно приложения для выбора роли пользователя
+    /// и запуска соответствующего интерфейса.
     /// </summary>
     public partial class MainForm : Form
     {
-        private readonly IEmployeeLogic _employeeLogic;
-        private readonly IUserLogic _userLogic;
-
+        private readonly IKernel _kernel;
         /// <summary>
-        /// Создаёт главную форму с операциями сотрудника и пользователя.
+        /// Инициализирует главное окно и получает контейнер зависимостей Ninject.
         /// </summary>
-        /// <param name="employeeLogic">Операции сотрудника.</param>
-        /// <param name="userLogic">Операции пользователя.</param>
-        public MainForm(IEmployeeLogic employeeLogic, IUserLogic userLogic)
+        /// <param name="kernel">Контейнер зависимостей приложения.</param>
+        public MainForm(IKernel kernel)
         {
             InitializeComponent();
-            _employeeLogic = employeeLogic ?? throw new ArgumentNullException(nameof(employeeLogic));
-            _userLogic = userLogic ?? throw new ArgumentNullException(nameof(userLogic));
-        }
-        
-        /// <summary>
-        /// Проверяет пароль и при успешной верификации открывает EmployeeForm модально; при неверном пароле отображает
-        /// диалог с сообщением об ошибке.
-        /// </summary>
-        /// <remarks>Пароль проверяется методом CheckPassword; форма создаётся в блоке using и
-        /// отображается через ShowDialog().</remarks>
-        /// <param name="sender">Объект, инициировавший событие.</param>
-        /// <param name="e">Аргументы события.</param>
-        private void buttonEmployee_Click(object sender, EventArgs e)
-        {
-            if (CheckPassword("1234"))
-            {
-                using EmployeeForm form = new EmployeeForm(_employeeLogic);
-                form.ShowDialog();
-            }
-            else
-            {
-                MessageBox.Show("Неверный пароль. Доступ запрещен.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            _kernel = kernel ?? throw new ArgumentNullException(
+                nameof(kernel));
         }
 
-        /// <summary>
-        /// Открывает модальную форму UserForm и ожидает её закрытия.
-        /// </summary>
-        /// <remarks>Форма создаётся в блоке using и автоматически освобождается после закрытия.</remarks>
-        /// <param name="sender">Объект, инициировавший событие.</param>
-        /// <param name="e">Аргументы события клика.</param>
+        private void buttonEmployee_Click(object sender, EventArgs e)
+        {
+            if (!CheckPassword("1234"))
+            {
+                MessageBox.Show(
+                    "Неверный пароль. Доступ запрещён.",
+                    "Ошибка",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+
+                return;
+            }
+
+            using EmployeeForm form = new EmployeeForm();
+
+            var presenter =
+                ApplicationServices.CreateEmployeePresenter(
+                    _kernel, form);
+
+            presenter.Initialize();
+
+            form.ShowDialog(this);
+
+            GC.KeepAlive(presenter);
+        }
+
         private void buttonUser_Click(object sender, EventArgs e)
         {
-            using UserForm form = new UserForm(_userLogic);
-            form.ShowDialog();
+            using UserForm form = new UserForm();
+
+            var presenter =
+                ApplicationServices.CreateUserPresenter(
+                    _kernel, form);
+
+            presenter.Initialize();
+
+            form.ShowDialog(this);
+
+            GC.KeepAlive(presenter);
         }
-        /// <summary>
-        /// Закрывает текущее окно (форму).
-        /// </summary>
-        /// <remarks>Вызов Close() инициирует события FormClosing и FormClosed.</remarks>
-        /// <param name="sender">Источник события.</param>
-        /// <param name="e">Аргументы события.</param>
+
         private void buttonExit_Click(object sender, EventArgs e)
         {
             Close();
         }
-        /// <summary>
-        /// Отображает модальное окно запроса пароля и проверяет совпадение введённого текста с заданным правильным
-        /// паролем.
-        /// </summary>
-        /// <remarks>Диалог основан на System.Windows.Forms; ввод в поле скрыт через
-        /// UseSystemPasswordChar. Клавиша Enter соответствует кнопке ОК.</remarks>
-        /// <param name="correctPassword">Правильный пароль для сравнения.</param>
-        /// <returns>true, если пользователь подтвердил ввод (DialogResult.OK) и введённый пароль совпадает с правильным паролем;
-        /// иначе false.</returns>
+
         private bool CheckPassword(string correctPassword)
         {
-            using Form prompt = new Form()
+            using Form prompt = new Form
             {
                 Width = 300,
                 Height = 150,
@@ -88,9 +82,30 @@ namespace App_WinForms
                 MinimizeBox = false
             };
 
-            Label textLabel = new Label() { Left = 20, Top = 20, Text = "Введите пароль доступа:", AutoSize = true };
-            TextBox textBox = new TextBox() { Left = 20, Top = 45, Width = 240, UseSystemPasswordChar = true };
-            Button confirmation = new Button() { Text = "ОК", Left = 160, Top = 75, Width = 100, DialogResult = DialogResult.OK };
+            Label textLabel = new Label
+            {
+                Left = 20,
+                Top = 20,
+                Text = "Введите пароль доступа:",
+                AutoSize = true
+            };
+
+            TextBox textBox = new TextBox
+            {
+                Left = 20,
+                Top = 45,
+                Width = 240,
+                UseSystemPasswordChar = true
+            };
+
+            Button confirmation = new Button
+            {
+                Text = "ОК",
+                Left = 160,
+                Top = 75,
+                Width = 100,
+                DialogResult = DialogResult.OK
+            };
 
             prompt.AcceptButton = confirmation;
 
@@ -98,7 +113,8 @@ namespace App_WinForms
             prompt.Controls.Add(textBox);
             prompt.Controls.Add(confirmation);
 
-            return prompt.ShowDialog() == DialogResult.OK && textBox.Text == correctPassword;
+            return prompt.ShowDialog(this) == DialogResult.OK
+                && textBox.Text == correctPassword;
         }
     }
 }

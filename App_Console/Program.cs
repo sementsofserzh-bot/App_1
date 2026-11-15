@@ -6,8 +6,16 @@ using Ninject;
 
 namespace App_Console
 {
+    /// <summary>
+    /// Содержит точку входа консольного приложения
+    /// и обеспечивает запуск основных пользовательских сценариев.
+    /// </summary>
     internal class Program
     {
+        /// <summary>
+        /// Инициализирует базу данных, контейнер зависимостей
+        /// и запускает меню выбора роли пользователя.
+        /// </summary>
         static void Main()
         {
             Console.OutputEncoding = System.Text.Encoding.UTF8;
@@ -46,13 +54,11 @@ namespace App_Console
                     case 1:
                         if (CheckEmployeePassword(password))
                         {
-                            employeePresenter.Initialize();
                             employeeView.Run();
                         }
                         break;
 
                     case 2:
-                        userPresenter.Initialize();
                         userView.Run();
                         break;
 

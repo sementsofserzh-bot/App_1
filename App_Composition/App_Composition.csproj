@@ -9,7 +9,9 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\App_Logics\App_Model.csproj" />
+    <ProjectReference Include="..\App_Presenter\App_Presenter.csproj" />
     <ProjectReference Include="..\Contracts\Contracts.csproj" />
     <ProjectReference Include="..\DataAccessLayer\DataAccessLayer.csproj" />
+    <ProjectReference Include="..\Shared\Shared.csproj" />
   </ItemGroup>
 </Project>

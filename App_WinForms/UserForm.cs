@@ -1,114 +1,239 @@
 
-using App_Model;
 using Essence;
+using Shared;
 
 namespace App_WinForms
 {
     /// <summary>
-    /// Форма пользователя для регистрации, подбора тренера и просмотра рекомендаций.
+    /// Реализует графическое представление пользователя
+    /// на основе Windows Forms и интерфейса IUserView.
     /// </summary>
-    public partial class UserForm : Form
+    public partial class UserForm : Form, IUserView
     {
-        private readonly IUserLogic logics;
+        public event EventHandler? RefreshAthletesRequested;
+        public event EventHandler? RefreshTrainersRequested;
+        public event EventHandler? AddAthleteRequested;
+        public event EventHandler? RefreshRatingRequested;
+        public event EventHandler? RegisterAthleteRequested;
+        public event EventHandler? PersonalTrainingRequested;
+        public event EventHandler? FilterTrainersRequested;
+        public event EventHandler? SignUpFromFilterRequested;
 
-        /// <summary>
-        /// Создаёт форму пользователя с операциями бизнес-логики.
-        /// </summary>
-        /// <param name="logics">Операции, доступные пользователю.</param>
-        public UserForm(IUserLogic logics)
+        public AthleteInputDto NewAthlete { get; private set; } = new();
+
+        public int SelectedRegistrationAthleteId =>
+            (comboRegistrationAthlete.SelectedItem as AthleteDto)?.Id ?? 0;
+
+        public int SelectedRegistrationTrainerId =>
+            (comboRegistrationTrainer.SelectedItem as TrainerDto)?.Id ?? 0;
+
+        public int SelectedPersonalAthleteId =>
+            (comboPersonalAthlete.SelectedItem as AthleteDto)?.Id ?? 0;
+
+        public int SelectedFilterAthleteId =>
+            (comboFilterAthlete.SelectedItem as AthleteDto)?.Id ?? 0;
+
+        public int SelectedFilteredTrainerId
         {
-            InitializeComponent();
-            this.logics = logics;
-            FillEnums();
-            RefreshCombos();
-            RefreshRating();
+            get
+            {
+                if (dataGridFilter.SelectedRows.Count == 0)
+                    return 0;
+
+                object? value =
+                    dataGridFilter.SelectedRows[0].Cells[0].Value;
+
+                return value != null
+                    ? Convert.ToInt32(value)
+                    : 0;
+            }
         }
         /// <summary>
-        /// Заполняет comboGender и comboTrainingType значениями перечислений Gendre и TrainingType и устанавливает
-        /// первый элемент как выбранный при наличии элементов.
+        /// Инициализирует пользовательскую форму и настраивает элементы управления.
         /// </summary>
-        /// <remarks>Получает значения перечислений через Enum.GetValues и добавляет их в коллекции Items;
-        /// если коллекции не пусты, присваивает SelectedIndex = 0.</remarks>
+        public UserForm()
+        {
+            InitializeComponent();
+            FillEnums();
+            comboGender.SelectedIndexChanged +=
+    comboGender_SelectedIndexChanged;
+
+            dataGridFilter.SelectionMode =
+                DataGridViewSelectionMode.FullRowSelect;
+
+            dataGridFilter.MultiSelect = false;
+        }
+
         private void FillEnums()
         {
             comboGender.Items.Clear();
             comboTrainingType.Items.Clear();
 
-            comboGender.Items.AddRange(Enum.GetValues<Gendre>().Cast<object>().ToArray());
-            comboTrainingType.Items.AddRange(Enum.GetValues<TrainingType>().Cast<object>().ToArray());
+            comboGender.Items.AddRange(
+                Enum.GetValues<Gendre>()
+                    .Cast<object>()
+                    .ToArray());
 
-            if (comboGender.Items.Count > 0) comboGender.SelectedIndex = 0;
-            if (comboTrainingType.Items.Count > 0) comboTrainingType.SelectedIndex = 0;
+            if (comboGender.Items.Count > 0)
+                comboGender.SelectedIndex = 0;
+
+            UpdateTrainingTypesForSelectedGender();
         }
-        /// <summary>
-        /// Обновляет источники данных и свойства отображения нескольких ComboBox: назначает актуальные списки
-        /// спортсменов и тренеров и устанавливает DisplayMember = "FullName".
-        /// </summary>
-        /// <remarks>Сбрасывает DataSource в null перед повторным присвоением и материализует коллекции
-        /// вызовом ToList(), чтобы подгрузить актуальные данные; обновляет comboRegistrationAthlete,
-        /// comboRegistrationTrainer, comboPersonalAthlete и comboFilterAthlete.</remarks>
-        private void RefreshCombos()
+        private static TrainingType[] GetTrainingTypes(
+    Gendre gender)
         {
-            comboRegistrationAthlete.DataSource = null;
-            comboRegistrationAthlete.DataSource = logics.BD_Athlete.ToList();
-            comboRegistrationAthlete.DisplayMember = "FullName";
-
-            comboRegistrationTrainer.DataSource = null;
-            comboRegistrationTrainer.DataSource = logics.BD_Trainer.ToList();
-            comboRegistrationTrainer.DisplayMember = "FullName";
-
-            comboPersonalAthlete.DataSource = null;
-            comboPersonalAthlete.DataSource = logics.BD_Athlete.ToList();
-            comboPersonalAthlete.DisplayMember = "FullName";
-
-            comboFilterAthlete.DataSource = null;
-            comboFilterAthlete.DataSource = logics.BD_Athlete.ToList();
-            comboFilterAthlete.DisplayMember = "FullName";
+            return Enum.GetValues<TrainingType>()
+                .Where(t => t.ToString().StartsWith(
+                    $"{gender}_",
+                    StringComparison.Ordinal))
+                .ToArray();
         }
-        /// <summary>
-        /// Обновляет dataGridRating: очищает все строки и заполняет их рейтингом тренеров, полученным из
-        /// logics.RateTrainers(), добавляя порядковый номер, идентификатор, ФИО, пол, возраст, стаж, число подопечных и
-        /// тип тренировки.
-        /// </summary>
-        /// <remarks>Должен вызываться из UI‑потока. Порядок и содержимое строк зависят от
-        /// logics.RateTrainers(). При отсутствии списка спортсменов учитывается null-safe подсчёт
-        /// (Trainer.Athlete?.Count ?? 0).</remarks>
-        private void RefreshRating()
+
+        private void UpdateTrainingTypesForSelectedGender()
+        {
+            if (comboGender.SelectedItem is not Gendre gender)
+                return;
+
+            TrainingType[] types = GetTrainingTypes(gender);
+
+            comboTrainingType.Items.Clear();
+
+            comboTrainingType.Items.AddRange(
+                types.Cast<object>().ToArray());
+
+            if (types.Length > 0)
+                comboTrainingType.SelectedIndex = 0;
+        }
+
+        private void comboGender_SelectedIndexChanged(
+            object? sender, EventArgs e)
+        {
+            UpdateTrainingTypesForSelectedGender();
+        }
+
+        private static void BindCombo<T>(
+            ComboBox combo,
+            IReadOnlyList<T> items,
+            Func<T, int> getId) where T : class
+        {
+            int selectedId = 0;
+
+            if (combo.SelectedItem is T current)
+                selectedId = getId(current);
+
+            combo.DataSource = null;
+            combo.DisplayMember = "FullName";
+            combo.DataSource = items.ToList();
+
+            if (selectedId > 0)
+            {
+                T? selected = items.FirstOrDefault(
+                    x => getId(x) == selectedId);
+
+                if (selected != null)
+                    combo.SelectedItem = selected;
+            }
+        }
+
+        public void ShowAthletes(IReadOnlyList<AthleteDto> athletes)
+        {
+            BindCombo(
+                comboRegistrationAthlete,
+                athletes,
+                a => a.Id);
+
+            BindCombo(
+                comboPersonalAthlete,
+                athletes,
+                a => a.Id);
+
+            BindCombo(
+                comboFilterAthlete,
+                athletes,
+                a => a.Id);
+        }
+
+        public void ShowTrainers(IReadOnlyList<TrainerDto> trainers)
+        {
+            BindCombo(
+                comboRegistrationTrainer,
+                trainers,
+                t => t.Id);
+        }
+
+        public void ShowRating(
+            IReadOnlyList<TrainerRatingDto> rating)
         {
             dataGridRating.Rows.Clear();
 
-            int number = 1;
-
-            foreach (Trainer trainer in logics.RateTrainers())
+            foreach (TrainerRatingDto item in rating)
             {
+                TrainerDto trainer = item.Trainer;
+
                 dataGridRating.Rows.Add(
-                    number,
+                    item.Position,
                     trainer.Id,
                     trainer.FullName,
-                    trainer.Gendre,
+                    (Gendre)trainer.Gender,
                     trainer.Age,
                     trainer.WorkExperience,
-                    trainer.Athlete?.Count ?? 0,
-                    trainer.TrainingType);
-
-                number++;
+                    item.AthleteCount,
+                    (TrainingType)trainer.TrainingType);
             }
         }
-        /// <summary>
-        /// Обрабатывает нажатие кнопки добавления атлета: проверяет непустое ФИО, парсит возраст, рост и вес, вызывает
-        /// логический слой для создания атлета, обновляет списки и очищает поля ввода, отображает результат или ошибку.
-        /// </summary>
-        /// <remarks>Выполняет валидацию: ФИО не пустое; возраст, рост и вес — целые числа. Приводит
-        /// выбранные элементы комбобоксов к перечислениям Gendre и TrainingType, вызывает logics.AddAthlete, обновляет
-        /// комбобоксы, показывает сообщение об успешном добавлении и очищает поля; при исключении отображает сообщение
-        /// с текстом ошибки.</remarks>
-        /// <param name="sender">Источник события (обычно элемент управления, инициировавший клик).</param>
-        /// <param name="e">Аргументы события клика.</param>
-        private void buttonAddAthlete_Click(object sender, EventArgs e)
+
+        public void ShowPersonalTraining(string trainingPlan)
+        {
+            textPersonalResult.Text = trainingPlan;
+        }
+
+        public void ShowFilteredTrainers(
+            IReadOnlyList<TrainerMatchDto> trainers)
+        {
+            dataGridFilter.Rows.Clear();
+
+            foreach (TrainerMatchDto item in trainers)
+            {
+                TrainerDto trainer = item.Trainer;
+
+                dataGridFilter.Rows.Add(
+                    trainer.Id,
+                    trainer.FullName,
+                    (Gendre)trainer.Gender,
+                    (TrainingType)trainer.TrainingType,
+                    trainer.Age,
+                    trainer.WorkExperience,
+                    item.AthleteCount,
+                    $"{item.MatchPercentage}%");
+            }
+
+            dataGridFilter.ClearSelection();
+        }
+
+        public void ShowMessage(string message)
+        {
+            MessageBox.Show(
+                message,
+                "Информация",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+        }
+
+        public void ShowError(string message)
+        {
+            MessageBox.Show(
+                message,
+                "Ошибка",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error);
+        }
+
+        private void buttonAddAthlete_Click(
+            object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(textFullName.Text))
             {
-                MessageBox.Show("Введите ФИО атлета.");
+                ShowError("Введите ФИО атлета.");
                 return;
             }
 
@@ -116,179 +241,96 @@ namespace App_WinForms
                 !int.TryParse(textHeight.Text, out int height) ||
                 !int.TryParse(textWeight.Text, out int weight))
             {
-                MessageBox.Show("Возраст, рост и вес должны быть числами.");
+                ShowError(
+                    "Возраст, рост и вес должны быть целыми числами.");
                 return;
             }
 
-            try
+            if (comboGender.SelectedItem is not Gendre gender ||
+                comboTrainingType.SelectedItem is not TrainingType type)
             {
-                Athlete athlete = logics.AddAthlete(
-                    textFullName.Text,
-                    (Gendre)comboGender.SelectedItem!,
-                    (TrainingType)comboTrainingType.SelectedItem!,
-                    age,
-                    height,
-                    weight);
-
-                RefreshCombos();
-                MessageBox.Show($"Атлет {athlete.FullName} успешно добавлен.");
-
-                textFullName.Clear();
-                textAge.Clear();
-                textHeight.Clear();
-                textWeight.Clear();
+                ShowError("Выберите пол и тип тренировки.");
+                return;
             }
-            catch (Exception ex)
+
+            NewAthlete = new AthleteInputDto
             {
-                MessageBox.Show($"Ошибка: {ex.Message}");
-            }
+                FullName = textFullName.Text.Trim(),
+                Gender = (int)gender,
+                TrainingType = (int)type,
+                Age = age,
+                Height = height,
+                Weight = weight
+            };
+
+            AddAthleteRequested?.Invoke(this, EventArgs.Empty);
         }
-        /// <summary>
-        /// Регистрирует выбранного атлета у выбранного тренера, обновляет элементы управления и отображает сообщение о
-        /// результате.
-        /// </summary>
-        /// <remarks>Если не выбран атлет или тренер — отображает предупреждение. При успешной регистрации
-        /// обновляет комбобоксы и рейтинг; при неуспехе — показывает сообщение о возможной причине.</remarks>
-        /// <param name="sender">Источник события.</param>
-        /// <param name="e">Аргументы события.</param>
-        private void buttonRegistration_Click(object sender, EventArgs e)
-        {
-            Athlete? athlete = comboRegistrationAthlete.SelectedItem as Athlete;
-            Trainer? trainer = comboRegistrationTrainer.SelectedItem as Trainer;
 
-            if (athlete == null || trainer == null)
+        private void buttonRegistration_Click(
+            object sender, EventArgs e)
+        {
+            if (SelectedRegistrationAthleteId <= 0 ||
+                SelectedRegistrationTrainerId <= 0)
             {
-                MessageBox.Show("Выберите атлета и тренера.");
+                ShowError("Выберите атлета и тренера.");
                 return;
             }
 
-            if (logics.Registration(trainer, athlete))
-            {
-                RefreshCombos();
-                RefreshRating();
-                MessageBox.Show("Атлет успешно зарегистрирован за тренером.");
-            }
-            else
-            {
-                MessageBox.Show("Регистрация не выполнена. Возможно, атлет уже закреплен за этим тренером.");
-            }
+            RegisterAthleteRequested?.Invoke(
+                this, EventArgs.Empty);
         }
-        /// <summary>
-        /// Запускает персональную тренировку для выбранного атлета, при отсутствии выбора отображает предупреждение и
-        /// выводит результат в textPersonalResult.
-        /// </summary>
-        /// <remarks>Берёт выбранного атлета из comboPersonalAthlete и вызывает logics.PersonalTraining;
-        /// результат помещается в textPersonalResult. Если атлет не выбран, показывается сообщение с просьбой выбрать
-        /// или добавить атлета.</remarks>
-        /// <param name="sender">Источник события, инициировавший клик.</param>
-        /// <param name="e">Аргументы события Click.</param>
-        private void buttonPersonalTraining_Click(object sender, EventArgs e)
-        {
-            Athlete? athlete = comboPersonalAthlete.SelectedItem as Athlete;
 
-            if (athlete == null)
+        private void buttonPersonalTraining_Click(
+            object sender, EventArgs e)
+        {
+            if (SelectedPersonalAthleteId <= 0)
             {
-                MessageBox.Show("Сначала выберите или добавьте атлета.");
+                ShowError("Сначала выберите или добавьте атлета.");
                 return;
             }
 
-            textPersonalResult.Text = logics.PersonalTraining(athlete);
+            PersonalTrainingRequested?.Invoke(
+                this, EventArgs.Empty);
         }
-        /// <summary>
-        /// Фильтрует тренеров по выбранному атлету и отображает их в таблице, отсортированных по степени совпадения.
-        /// </summary>
-        /// <remarks>Если атлет не выбран, отображает сообщение и прекращает выполнение. Очищает
-        /// dataGridFilter, получает ранжированный список тренеров через logics.PersonalFilterTrainers(athlete),
-        /// вычисляет процент совпадения через logics.CalculateMatchPercentage и добавляет строки с данными тренера и
-        /// процентом в таблицу.</remarks>
-        /// <param name="sender">Объект, инициировавший событие.</param>
-        /// <param name="e">Аргументы события.</param>
-        private void buttonFilter_Click(object sender, EventArgs e)
-        {
-            Athlete? athlete = comboFilterAthlete.SelectedItem as Athlete;
 
-            if (athlete == null)
+        private void buttonFilter_Click(
+            object sender, EventArgs e)
+        {
+            if (SelectedFilterAthleteId <= 0)
             {
-                MessageBox.Show("Выберите атлета.");
+                ShowError("Выберите атлета.");
                 return;
             }
 
-            dataGridFilter.Rows.Clear();
-
-            var rankedTrainers = logics.PersonalFilterTrainers(athlete);
-
-            foreach (Trainer trainer in rankedTrainers)
-            {
-                int matchPercent = logics.CalculateMatchPercentage(trainer, athlete);
-
-                dataGridFilter.Rows.Add(
-                    trainer.Id,
-                    trainer.FullName,
-                    trainer.Gendre,
-                    trainer.TrainingType,
-                    trainer.Age,
-                    trainer.WorkExperience,
-                    trainer.Athlete?.Count ?? 0,
-                    $"{matchPercent}%");
-            }
+            FilterTrainersRequested?.Invoke(
+                this, EventArgs.Empty);
         }
-        /// <summary>
-        /// Записывает выбранного атлета к выделенному тренеру из таблицы подбора, выполняя проверки и обновляя
-        /// интерфейс.
-        /// </summary>
-        /// <remarks>Проверяет наличие выбранного атлета и выделенной строки таблицы; получает тренера по
-        /// идентификатору через логики; при успешной регистрации обновляет комбобоксы, рейтинг и таблицу подбора,
-        /// вычисляет процент совместимости и отображает сообщение об успехе; при ошибках отображает соответствующие
-        /// MessageBox.</remarks>
-        /// <param name="sender">Источник события клика (обычно кнопка).</param>
-        /// <param name="e">Аргументы события клика.</param>
-        private void buttonSignUpFromFilter_Click(object sender, EventArgs e)
+
+        private void buttonSignUpFromFilter_Click(
+            object sender, EventArgs e)
         {
-            Athlete? athlete = comboFilterAthlete.SelectedItem as Athlete;
-
-            if (athlete == null)
+            if (SelectedFilterAthleteId <= 0)
             {
-                MessageBox.Show("Выберите атлета вверху страницы.");
+                ShowError("Выберите атлета вверху страницы.");
                 return;
             }
 
-            if (dataGridFilter.SelectedRows.Count == 0)
+            if (SelectedFilteredTrainerId <= 0)
             {
-                MessageBox.Show("Выберите тренера из таблицы, к которому хотите записаться.");
+                ShowError(
+                    "Выберите тренера из таблицы подбора.");
                 return;
             }
 
-            int trainerId = Convert.ToInt32(dataGridFilter.SelectedRows[0].Cells[0].Value);
-            Trainer? trainer = logics.CheckTrainer(trainerId);
-
-            if (trainer == null)
-            {
-                MessageBox.Show("Тренер не найден.");
-                return;
-            }
-
-            if (logics.Registration(trainer, athlete))
-            {
-                RefreshCombos();
-                RefreshRating();
-                buttonFilter_Click(sender, e);
-
-                int matchPercent = logics.CalculateMatchPercentage(trainer, athlete);
-                MessageBox.Show($"Поздравляем! Атлет {athlete.FullName} успешно записан к тренеру {trainer.FullName}!\nСовместимость: {matchPercent}%.", "Успешная запись", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-            else
-            {
-                MessageBox.Show("Не удалось записаться. Возможно, атлет уже закреплен за этим тренером.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            }
+            SignUpFromFilterRequested?.Invoke(
+                this, EventArgs.Empty);
         }
-        /// <summary>
-        /// Обновляет отображаемый рейтинг, вызывая RefreshRating.
-        /// </summary>
-        /// <param name="sender">Объект, инициировавший событие.</param>
-        /// <param name="e">Аргументы события Click.</param>
-        private void buttonRefreshRating_Click(object sender, EventArgs e)
+
+        private void buttonRefreshRating_Click(
+            object sender, EventArgs e)
         {
-            RefreshRating();
+            RefreshRatingRequested?.Invoke(
+                this, EventArgs.Empty);
         }
     }
 }

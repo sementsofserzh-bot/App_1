@@ -11,7 +11,9 @@
   <ItemGroup>
     <ProjectReference Include="..\App_Logics\App_Model.csproj" />
     <ProjectReference Include="..\App_Composition\App_Composition.csproj" />
+    <ProjectReference Include="..\App_Presenter\App_Presenter.csproj" />
     <ProjectReference Include="..\Essence\Essence.csproj" />
+    <ProjectReference Include="..\Shared\Shared.csproj" />
   </ItemGroup>
 
 </Project>

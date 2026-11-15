@@ -2,11 +2,13 @@
   <Folder Name="/Элементы решения/">
     <File Path=".gitignore" />
   </Folder>
+  <Project Path="App_Composition/App_Composition.csproj" />
   <Project Path="App_Console/App_Console.csproj" />
   <Project Path="App_Logics/App_Model.csproj" />
-  <Project Path="App_Composition/App_Composition.csproj" />
+  <Project Path="App_Presenter/App_Presenter.csproj" Id="6cd27765-2d21-4210-b75a-39054e09c8ca" />
   <Project Path="App_WinForms/App_WinForms.csproj" />
   <Project Path="Contracts/Contracts.csproj" Id="99ec8f91-9068-45d3-b388-697236ca9422" />
   <Project Path="DataAccessLayer/DataAccessLayer.csproj" Id="ae336bd8-cc15-4577-b0bc-388854b86529" />
   <Project Path="Essence/Essence.csproj" Id="5dee168c-4ff7-42cc-a48e-e293a88dfd57" />
+  <Project Path="Shared/Shared.csproj" Id="744dca57-582a-43b3-8034-a8c2c4db8829" />
 </Solution>

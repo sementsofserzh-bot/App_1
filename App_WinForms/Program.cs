@@ -25,7 +25,7 @@ namespace App_WinForms
             ApplicationServices.InitializeDatabase();
             using var kernel = ApplicationServices.CreateKernel();
             kernel.Get<InitialDataSeeder>().SeedIfEmpty();
-            using MainForm mainForm = kernel.Get<MainForm>();
+            using MainForm mainForm = new MainForm(kernel);
             Application.Run(mainForm);
         }
     }
